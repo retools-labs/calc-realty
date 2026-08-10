@@ -283,6 +283,82 @@ export default function Home() {
         협의하여 결정됩니다. 일부 지자체는 조례가 다를 수 있어 정확한 금액은 관할 시·도 조례를
         확인하세요.
       </p>
+
+      <PartnerBanner />
     </main>
+  );
+}
+
+function RealtyBookLogo() {
+  return (
+    <div className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur-sm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M3 11.5 12 4l9 7.5"
+          stroke="#fff"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M5.5 10v8.5A1.5 1.5 0 0 0 7 20h10a1.5 1.5 0 0 0 1.5-1.5V10"
+          stroke="#fff"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9.3 14.3 11 16l3.7-4"
+          stroke="#4ADE80"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="text-xs font-bold tracking-tight text-white">리얼티북</span>
+    </div>
+  );
+}
+
+function PartnerBanner() {
+  return (
+    <a
+      href="https://apple-realty.vercel.app/partner"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-6 block overflow-hidden rounded-2xl bg-gradient-to-br from-[#3B6BFF] to-[#274DDB] p-5 text-white shadow-sm transition active:scale-[0.99]"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-1 text-[10px] text-white/70">
+            <span className="text-xl">📒</span>
+            <span>기존 수기/엑셀 방식</span>
+          </div>
+          <span className="text-white/50">→</span>
+          <div className="flex flex-col items-center gap-1 text-[10px] font-semibold text-white">
+            <span className="text-xl">✅</span>
+            <span>
+              스마트 정산장부
+              <br />
+              &apos;리얼티북&apos;
+            </span>
+          </div>
+        </div>
+        <RealtyBookLogo />
+      </div>
+
+      <p className="mt-4 text-base font-bold leading-snug">
+        소속중개사 수수료 정산,
+        <br />
+        아직도 엑셀로 하세요?
+      </p>
+      <p className="mt-1 text-xs text-white/80">
+        스마트 정산장부 &apos;리얼티북&apos; 1개월 무료 체험하기
+      </p>
+
+      <span className="mt-3 inline-flex items-center gap-1 rounded-xl bg-[#22C55E] px-4 py-2 text-sm font-bold text-white">
+        🎁 1개월 무료 체험 신청
+      </span>
+    </a>
   );
 }
