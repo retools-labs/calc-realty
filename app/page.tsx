@@ -130,7 +130,7 @@ export default function Home() {
     <main className="mx-auto max-w-md px-4 pb-24 pt-8">
       <h1 className="text-2xl font-bold">복비 계산기</h1>
       <p className="mt-1 text-sm text-[#8B95A1]">
-        법정 상한요율 기준으로 부동산 중개보수를 바로 계산해요.
+        법정 상한요율 기준 부동산 중개보수를 계산해드립니다.
       </p>
 
       <section className="mt-6 space-y-4 rounded-2xl bg-white p-4">
@@ -289,36 +289,69 @@ export default function Home() {
   );
 }
 
-function RealtyBookLogo() {
+function RealtyBookMark({ size = 28 }: { size?: number }) {
+  const gradId = "rb-mark-grad";
   return (
-    <div className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 backdrop-blur-sm">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M3 11.5 12 4l9 7.5"
-          stroke="#fff"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M5.5 10v8.5A1.5 1.5 0 0 0 7 20h10a1.5 1.5 0 0 0 1.5-1.5V10"
-          stroke="#fff"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M9.3 14.3 11 16l3.7-4"
-          stroke="#4ADE80"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <span className="text-xs font-bold tracking-tight text-white">리얼티북</span>
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id={gradId} x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#4FC3E8" />
+          <stop offset="1" stopColor="#0B3B66" />
+        </linearGradient>
+      </defs>
+      {/* 지붕 */}
+      <path
+        d="M4 22 24 5l20 17"
+        stroke={`url(#${gradId})`}
+        strokeWidth="4.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* 몸체 */}
+      <path
+        d="M8.5 19v20a2 2 0 0 0 2 2h27a2 2 0 0 0 2-2V19"
+        stroke={`url(#${gradId})`}
+        strokeWidth="4.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <text
+        x="24"
+        y="34"
+        textAnchor="middle"
+        fontFamily="Arial, Helvetica, sans-serif"
+        fontWeight="800"
+        fontSize="15"
+        fill={`url(#${gradId})`}
+      >
+        RB
+      </text>
+    </svg>
+  );
+}
+
+function RealtyBookLockup({ light = false }: { light?: boolean }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="rounded-lg bg-white p-1">
+        <RealtyBookMark size={26} />
+      </div>
+      <div className="leading-tight">
+        <p className={`text-sm font-extrabold ${light ? "text-white" : "text-[#0B3B66]"}`}>리얼티북</p>
+        <p className={`text-[9px] font-medium tracking-wide ${light ? "text-white/70" : "text-[#8B95A1]"}`}>
+          RealtyBook
+        </p>
+      </div>
     </div>
   );
 }
+
+const BANNER_FEATURES: { icon: string; label: string }[] = [
+  { icon: "📋", label: "계약 관리" },
+  { icon: "🏢", label: "임대료 납부" },
+  { icon: "📍", label: "매물 검색" },
+  { icon: "🤝", label: "투명 거래" },
+];
 
 function PartnerBanner() {
   return (
@@ -326,38 +359,37 @@ function PartnerBanner() {
       href="https://apple-realty.vercel.app/partner"
       target="_blank"
       rel="noopener noreferrer"
-      className="mt-6 block overflow-hidden rounded-2xl bg-gradient-to-br from-[#3B6BFF] to-[#274DDB] p-5 text-white shadow-sm transition active:scale-[0.99]"
+      className="relative mt-6 block overflow-hidden rounded-2xl bg-gradient-to-br from-[#0B3B66] via-[#12547F] to-[#1C7695] p-5 text-white shadow-sm transition active:scale-[0.99]"
+      style={{
+        backgroundImage:
+          "radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(135deg, #0B3B66, #12547F 55%, #1C7695)",
+        backgroundSize: "16px 16px, 100% 100%",
+      }}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col items-center gap-1 text-[10px] text-white/70">
-            <span className="text-xl">📒</span>
-            <span>기존 수기/엑셀 방식</span>
-          </div>
-          <span className="text-white/50">→</span>
-          <div className="flex flex-col items-center gap-1 text-[10px] font-semibold text-white">
-            <span className="text-xl">✅</span>
-            <span>
-              스마트 정산장부
-              <br />
-              &apos;리얼티북&apos;
-            </span>
-          </div>
-        </div>
-        <RealtyBookLogo />
+      <div className="flex items-center justify-between">
+        <RealtyBookLockup light />
       </div>
 
-      <p className="mt-4 text-base font-bold leading-snug">
-        소속중개사 수수료 정산,
+      <div className="relative mt-5 flex items-center justify-between px-1">
+        <div className="absolute left-6 right-6 top-[13px] h-px border-t border-dashed border-white/30" />
+        {BANNER_FEATURES.map((f) => (
+          <div key={f.label} className="relative z-10 flex flex-col items-center gap-1.5">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-sm shadow">
+              {f.icon}
+            </span>
+            <span className="text-[10px] font-medium text-white/90">{f.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-5 text-base font-bold leading-snug">
+        리얼티북과 함께 투명하고
         <br />
-        아직도 엑셀로 하세요?
-      </p>
-      <p className="mt-1 text-xs text-white/80">
-        스마트 정산장부 &apos;리얼티북&apos; 1개월 무료 체험하기
+        편리한 부동산 거래를 경험하세요!
       </p>
 
-      <span className="mt-3 inline-flex items-center gap-1 rounded-xl bg-[#22C55E] px-4 py-2 text-sm font-bold text-white">
-        🎁 1개월 무료 체험 신청
+      <span className="mt-3 inline-flex items-center gap-1 rounded-xl bg-[#F4C430] px-4 py-2 text-sm font-bold text-[#0B3B66]">
+        서비스 시작하기 →
       </span>
     </a>
   );
