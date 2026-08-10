@@ -73,15 +73,6 @@ function SegButton<T extends string>({
   );
 }
 
-function RealtyBookHeader() {
-  return (
-    <div className="mx-auto max-w-md px-4 pt-5">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/realtybook-logo.png" alt="리얼티북 RealtyBook" className="h-9 w-auto" />
-    </div>
-  );
-}
-
 function PartnerBanner() {
   return (
     <div className="mx-auto max-w-md px-4">
@@ -155,11 +146,13 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
-      <RealtyBookHeader />
-
-      <div className="mx-auto mt-4 max-w-md px-4">
+      <div className="mx-auto mt-6 max-w-md px-4">
         <div className="rounded-2xl bg-white p-5 shadow-sm">
-          <h1 className="text-2xl font-bold">복비 계산기</h1>
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/realtybook-logo.png" alt="리얼티북 RealtyBook" className="h-8 w-auto" />
+            <h1 className="text-2xl font-bold">복비 계산기</h1>
+          </div>
           <p className="mt-1 text-sm text-[#8B95A1]">
             법정 상한요율 기준 부동산 중개보수를 계산해드립니다.
           </p>
