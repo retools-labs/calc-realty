@@ -73,108 +73,28 @@ function SegButton<T extends string>({
   );
 }
 
-function RealtyBookMark({ size = 28 }: { size?: number }) {
-  const gradId = "rb-mark-grad";
+function RealtyBookHeader() {
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id={gradId} x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#4FC3E8" />
-          <stop offset="1" stopColor="#0B3B66" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M4 22 24 5l20 17"
-        stroke={`url(#${gradId})`}
-        strokeWidth="4.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.5 19v20a2 2 0 0 0 2 2h27a2 2 0 0 0 2-2V19"
-        stroke={`url(#${gradId})`}
-        strokeWidth="4.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <text
-        x="24"
-        y="34"
-        textAnchor="middle"
-        fontFamily="Arial, Helvetica, sans-serif"
-        fontWeight="800"
-        fontSize="15"
-        fill={`url(#${gradId})`}
-      >
-        RB
-      </text>
-    </svg>
-  );
-}
-
-function RealtyBookLockup({ light = false }: { light?: boolean }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="rounded-lg bg-white p-1">
-        <RealtyBookMark size={24} />
-      </div>
-      <div className="leading-tight">
-        <p className={`text-sm font-extrabold ${light ? "text-white" : "text-[#0B3B66]"}`}>리얼티북</p>
-        <p className={`text-[9px] font-medium tracking-wide ${light ? "text-white/70" : "text-[#8B95A1]"}`}>
-          REALTYBOOK
-        </p>
-      </div>
+    <div className="mx-auto max-w-md px-4 pt-5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/realtybook-logo.png" alt="리얼티북 RealtyBook" className="h-9 w-auto" />
     </div>
   );
 }
 
-const HERO_FEATURES: { icon: string; label: string }[] = [
-  { icon: "📋", label: "계약 관리" },
-  { icon: "🏢", label: "임대료 납부" },
-  { icon: "📍", label: "매물 검색" },
-  { icon: "🤝", label: "투명 거래" },
-];
-
-function RealtyBookHero() {
+function PartnerBanner() {
   return (
-    <a
-      href={PARTNER_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block px-4 pb-8 pt-6 text-white"
-      style={{
-        backgroundImage:
-          "radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(135deg, #0B3B56, #12547A 55%, #1C7695)",
-        backgroundSize: "16px 16px, 100% 100%",
-      }}
-    >
-      <div className="mx-auto max-w-md">
-        <div className="flex items-center justify-between">
-          <RealtyBookLockup light />
-          <span className="whitespace-nowrap rounded-lg bg-[#F0B429] px-3 py-1.5 text-xs font-bold text-[#0B3B56]">
-            서비스 시작하기 →
-          </span>
-        </div>
-
-        <div className="relative mt-6 flex items-center justify-between px-2">
-          <div className="absolute left-5 right-5 top-[15px] h-px border-t border-dashed border-white/30" />
-          {HERO_FEATURES.map((f) => (
-            <div key={f.label} className="relative z-10 flex flex-col items-center gap-1.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-sm">
-                {f.icon}
-              </span>
-              <span className="text-[10px] font-medium text-white/90">{f.label}</span>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-6 text-right text-base font-bold leading-snug">
-          리얼티북과 함께 투명하고
-          <br />
-          편리한 부동산 거래를 경험하세요!
-        </p>
-      </div>
-    </a>
+    <div className="mx-auto max-w-md px-4">
+      <a
+        href={PARTNER_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block overflow-hidden rounded-2xl shadow-sm transition active:scale-[0.99]"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/realtybook-banner.png" alt="리얼티북과 함께 투명하고 편리한 부동산 거래를 경험하세요" className="w-full" />
+      </a>
+    </div>
   );
 }
 
@@ -235,9 +155,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
-      <RealtyBookHero />
+      <RealtyBookHeader />
 
-      <div className="mx-auto -mt-5 max-w-md px-4">
+      <div className="mx-auto mt-4 max-w-md px-4">
         <div className="rounded-2xl bg-white p-5 shadow-sm">
           <h1 className="text-2xl font-bold">복비 계산기</h1>
           <p className="mt-1 text-sm text-[#8B95A1]">
@@ -393,6 +313,10 @@ export default function Home() {
           협의하여 결정됩니다. 일부 지자체는 조례가 다를 수 있어 정확한 금액은 관할 시·도 조례를
           확인하세요.
         </p>
+      </div>
+
+      <div className="mt-4">
+        <PartnerBanner />
       </div>
     </main>
   );
