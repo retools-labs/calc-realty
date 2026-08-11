@@ -120,20 +120,47 @@ function PartnerBanner() {
           boxShadow: "0 18px 44px rgba(10,37,64,0.28)",
         }}
       >
+        {/* 대각선 하이라이트 (우상단에서 은은하게 밝아지는 느낌) */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "linear-gradient(255deg,rgba(255,255,255,0.07) 0%,transparent 42%)" }}
+        />
+        {/* 카드 상단 가장자리 하이라이트 라인 */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0"
+          style={{
+            height: 1,
+            background: "linear-gradient(90deg,transparent,rgba(255,255,255,0.32),transparent)",
+          }}
+        />
+        {/* 우상단 동심원 장식 (큰 원 + 작은 원) — CTA 버튼 주변의 은은한 링 효과 */}
+        <div
+          className="pointer-events-none absolute rounded-full"
+          style={{ top: -70, right: -70, width: 280, height: 280, border: "1px solid rgba(255,255,255,0.09)" }}
+        />
+        <div
+          className="pointer-events-none absolute rounded-full"
+          style={{ top: -30, right: -30, width: 160, height: 160, border: "1px solid rgba(255,255,255,0.07)" }}
+        />
+
         {/* 배경 워터마크 RB 로고 (연하게, 하단 기준 — 본문과 안 겹치도록) */}
         <img
           src="/icons/rb-mark-white.png"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute"
-          style={{ width: 110, height: 92, right: 20, bottom: 18, opacity: 0.08 }}
+          style={{ width: 132, height: "auto", right: 24, bottom: 14, opacity: 0.08 }}
         />
 
         {/* 콘텐츠 컬럼 (라벨+CTA / 헤드라인 / 서브텍스트 / 칩) */}
         <div className="relative" style={{ maxWidth: "100%" }}>
-          {/* 상단 라벨 + CTA 버튼 (좁은 화면에서도 안 겹치도록 같은 줄에 배치) */}
-          <div className="flex items-start justify-between" style={{ gap: 12, marginBottom: 14 }}>
-            <div className="flex items-center shrink-0" style={{ gap: 8, paddingTop: 6 }}>
+          {/* 상단 라벨 + CTA 버튼 — 디자인 원본과 동일하게 flex-wrap:wrap 이라서
+              폭이 좁아지면 겹치는 대신 버튼이 자연스럽게 다음 줄로 내려간다 */}
+          <div
+            className="flex flex-wrap items-center justify-between"
+            style={{ gap: 14, marginBottom: 18 }}
+          >
+            <div className="flex items-center" style={{ gap: 9 }}>
               <span className="shrink-0" style={{ width: 20, height: 2, background: "#f5c433" }} />
               <span
                 className="whitespace-nowrap"
@@ -144,29 +171,29 @@ function PartnerBanner() {
             </div>
 
             <span
-              className="inline-flex shrink-0 items-center"
+              className="inline-flex items-center"
               style={{
-                gap: 8,
+                gap: 10,
                 background: "linear-gradient(180deg,#f8d055,#f0b81f)",
                 borderRadius: 999,
-                padding: "10px 10px 10px 18px",
-                fontSize: 12.5,
+                padding: "13px 14px 13px 26px",
+                fontSize: 15,
                 fontWeight: 800,
                 color: "#0a2540",
                 whiteSpace: "nowrap",
-                boxShadow: "0 6px 16px rgba(8,32,58,0.35)",
+                boxShadow: "0 6px 16px rgba(8,32,58,0.55)",
               }}
             >
               서비스 시작하기
               <span
                 className="flex items-center justify-center shrink-0"
                 style={{
-                  width: 22,
-                  height: 22,
+                  width: 28,
+                  height: 28,
                   borderRadius: "50%",
                   background: "#0d3b57",
                   color: "#f8d055",
-                  fontSize: 12,
+                  fontSize: 15,
                   lineHeight: 1,
                 }}
               >
@@ -175,11 +202,11 @@ function PartnerBanner() {
             </span>
           </div>
 
-          {/* 헤드라인 - 화면 폭에 따라 21~28px 사이로 반응형 */}
+          {/* 헤드라인 - 디자인 원본과 동일한 clamp(21px, 5.2vw, 28px) */}
           <p
             className="text-white"
             style={{
-              fontSize: "clamp(21px, 6vw, 28px)",
+              fontSize: "clamp(21px, 5.2vw, 28px)",
               fontWeight: 800,
               lineHeight: 1.3,
               letterSpacing: -0.7,
