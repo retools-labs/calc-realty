@@ -73,6 +73,40 @@ function SegButton<T extends string>({
   );
 }
 
+/* eslint-disable @next/next/no-img-element */
+
+const BANNER_FEATURES = [
+  {
+    label: "중개물건 관리",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 8.5a1.5 1.5 0 0 1 1.5-1.5H10l1.8 2H19.5A1.5 1.5 0 0 1 21 10.5v7A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" />
+        <path d="m9.5 14 1.7 1.7L14.5 12" />
+      </svg>
+    ),
+  },
+  {
+    label: "수수료 계산",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="4.5" y="3.5" width="15" height="17" rx="2" />
+        <path d="M8 7.5h8" />
+        <path d="M8 12h1.5M11.25 12h1.5M14.5 12H16M8 15.5h1.5M11.25 15.5h1.5M14.5 15.5H16" />
+      </svg>
+    ),
+  },
+  {
+    label: "월별 정산",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="6.5" width="18" height="12" rx="2" />
+        <circle cx="12" cy="12.5" r="2.5" />
+        <path d="M3 9.5h2M19 9.5h2M3 15.5h2M19 15.5h2" />
+      </svg>
+    ),
+  },
+];
+
 function PartnerBanner() {
   return (
     <div className="mx-auto max-w-md px-4">
@@ -80,10 +114,36 @@ function PartnerBanner() {
         href={PARTNER_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="block overflow-hidden rounded-2xl shadow-sm transition active:scale-[0.99]"
+        className="block overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d3b52] to-[#1c7fa0] p-5 shadow-sm transition active:scale-[0.99]"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/realtybook-banner.png" alt="리얼티북과 함께 투명하고 편리한 부동산 거래를 경험하세요" className="w-full" />
+        <div className="flex items-center gap-2.5">
+          <img src="/icons/icon-192.png" alt="리얼티북" className="h-9 w-9 shrink-0 rounded-lg" />
+          <div className="leading-none">
+            <p className="text-base font-bold text-white">리얼티북</p>
+            <p className="mt-1 text-[11px] text-white/60">RealtyBook</p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-start justify-between">
+          {BANNER_FEATURES.map((f) => (
+            <div key={f.label} className="flex flex-1 flex-col items-center gap-1.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white">
+                {f.icon}
+              </div>
+              <span className="text-center text-[11px] font-medium text-white/90">{f.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <p className="mt-4 text-center text-sm font-semibold leading-snug text-white">
+          리얼티북과 함께 스마트하고 편리한
+          <br />
+          중개 관리를 경험하세요!
+        </p>
+
+        <div className="mt-3 rounded-xl bg-[#f5c344] py-2.5 text-center text-sm font-bold text-[#16232E]">
+          서비스 시작하기
+        </div>
       </a>
     </div>
   );
