@@ -136,11 +136,11 @@ function PartnerBanner() {
         {/* 우상단 동심원 장식 (큰 원 + 작은 원) — CTA 버튼 주변의 은은한 링 효과 */}
         <div
           className="pointer-events-none absolute rounded-full"
-          style={{ top: -70, right: -70, width: 280, height: 280, border: "1px solid rgba(255,255,255,0.09)" }}
+          style={{ top: -70, right: -70, width: 280, height: 280, border: "1px solid rgba(255,255,255,0.16)" }}
         />
         <div
           className="pointer-events-none absolute rounded-full"
-          style={{ top: -30, right: -30, width: 160, height: 160, border: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ top: -30, right: -30, width: 160, height: 160, border: "1px solid rgba(255,255,255,0.13)" }}
         />
 
         {/* 배경 워터마크 RB 로고 (연하게, 하단 기준 — 본문과 안 겹치도록) */}
@@ -202,7 +202,7 @@ function PartnerBanner() {
             </span>
           </div>
 
-          {/* 헤드라인 - 디자인 원본과 동일한 clamp(21px, 5.2vw, 28px) */}
+          {/* 헤드라인 - 디자인 원본과 동일한 clamp(21px, 5.2vw, 28px), 단어 중간에서 안 끊기도록 keep-all */}
           <p
             className="text-white"
             style={{
@@ -212,12 +212,13 @@ function PartnerBanner() {
               letterSpacing: -0.7,
               marginBottom: 13,
               textWrap: "pretty",
+              wordBreak: "keep-all",
             }}
           >
             리얼티북과 함께 만드는 성공적인 중개 파트너십!
           </p>
 
-          {/* 서브텍스트 */}
+          {/* 서브텍스트 - 단어 중간에서 안 끊기도록 keep-all */}
           <p
             style={{
               fontSize: 13.5,
@@ -225,13 +226,14 @@ function PartnerBanner() {
               color: "#9fbfd6",
               marginBottom: 34,
               textWrap: "pretty",
+              wordBreak: "keep-all",
             }}
           >
             흩어진 중개 업무를 한 곳으로 정리. 투명하고, 간결한 자동화로 핵심 업무에만 집중하세요.
           </p>
 
-          {/* 기능 칩 */}
-          <div className="flex flex-wrap items-center" style={{ gap: 20, justifyContent: "space-between" }}>
+          {/* 기능 칩 - space-between 대신 flex-start로, 줄바꿈돼도 칩이 이상하게 흩어지지 않도록 */}
+          <div className="flex flex-wrap items-center" style={{ gap: 20, justifyContent: "flex-start" }}>
             {BANNER_FEATURES.map((f) => (
             <span
               key={f.label}
