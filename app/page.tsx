@@ -112,53 +112,114 @@ function PartnerBanner() {
         href={PARTNER_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative block overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d3b52] to-[#1c7fa0] p-5 shadow-sm transition active:scale-[0.99]"
+        className="relative block overflow-hidden transition active:scale-[0.99]"
+        style={{
+          borderRadius: 24,
+          padding: "32px 34px 24px",
+          background: "linear-gradient(125deg,#08203a 0%,#0d3b57 52%,#15719c 100%)",
+          boxShadow: "0 18px 44px rgba(10,37,64,0.28)",
+        }}
       >
         {/* 배경 워터마크 RB 로고 (연하게) */}
         <img
-          src="/icons/icon-192.png"
+          src="/icons/icon-512.png"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -bottom-3 -right-3 h-24 w-24 rounded-2xl opacity-10"
+          className="pointer-events-none absolute"
+          style={{ width: 150, height: 150, right: 42, top: 128, opacity: 0.09, borderRadius: 24 }}
         />
 
-        <div className="relative flex items-center justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="h-px w-4 bg-[#f5c344]" />
-              <span className="text-[11px] font-bold tracking-wider text-[#f5c344]">REALTYBOOK</span>
-            </div>
-            <p className="mt-2 text-base font-bold leading-snug text-white">
-              리얼티북과 함께 만드는
-              <br />
-              성공적인 중개 파트너십!
-            </p>
-          </div>
+        {/* CTA 버튼 (절대 위치) */}
+        <span
+          className="absolute inline-flex items-center"
+          style={{
+            top: 66,
+            right: 30,
+            gap: 8,
+            background: "linear-gradient(180deg,#f8d055,#f0b81f)",
+            borderRadius: 999,
+            padding: "9px 8px 9px 16px",
+            fontSize: 12.5,
+            fontWeight: 700,
+            color: "#16232E",
+            whiteSpace: "nowrap",
+          }}
+        >
+          서비스 시작하기
+          <span
+            className="flex items-center justify-center"
+            style={{
+              width: 26,
+              height: 26,
+              borderRadius: "50%",
+              background: "#16232E",
+              color: "#f8d055",
+              fontSize: 14,
+              lineHeight: 1,
+            }}
+          >
+            →
+          </span>
+        </span>
 
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#f5c344] py-2 pl-3.5 pr-1.5 text-[11px] font-bold text-[#16232E]">
-            서비스 시작하기
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#16232E] text-[#f5c344]">
-              <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
-            </span>
+        {/* 상단 라벨 */}
+        <div className="relative flex items-center" style={{ gap: 8, maxWidth: 200 }}>
+          <span style={{ width: 20, height: 2, background: "#f5c433" }} />
+          <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.6, color: "#f5c433" }}>
+            REALTYBOOK
           </span>
         </div>
 
-        <p className="relative mt-2 text-xs leading-relaxed text-white/70">
+        {/* 헤드라인 */}
+        <p
+          className="relative text-white"
+          style={{ marginTop: 10, maxWidth: 200, fontSize: 28, fontWeight: 800, lineHeight: 1.25 }}
+        >
+          리얼티북과 함께 만드는
+          <br />
+          성공적인 중개 파트너십!
+        </p>
+
+        {/* 서브텍스트 */}
+        <p
+          className="relative"
+          style={{ marginTop: 10, maxWidth: 300, fontSize: 13.5, lineHeight: 1.5, color: "#9fbfd6" }}
+        >
           흩어진 중개 업무를 한 곳으로 정리.
           <br />
           투명하고, 간결한 자동화로 핵심 업무에만 집중하세요.
         </p>
 
-        <div className="relative mt-3.5 flex flex-wrap gap-1.5">
+        {/* 기능 칩 */}
+        <div
+          className="relative flex flex-wrap items-center"
+          style={{ marginTop: 20, gap: 20, justifyContent: "space-between" }}
+        >
           {BANNER_FEATURES.map((f) => (
             <span
               key={f.label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/25 px-2.5 py-1 text-[11px] font-medium text-white/90"
+              className="inline-flex items-center"
+              style={{
+                gap: 7,
+                background: "linear-gradient(180deg,rgba(255,255,255,0.11),rgba(255,255,255,0.05))",
+                border: "1px solid rgba(255,255,255,0.16)",
+                borderRadius: 999,
+                padding: "7px 14px 7px 10px",
+                backdropFilter: "blur(2px)",
+              }}
             >
-              {f.icon}
-              {f.label}
+              <span style={{ width: 15, height: 15, color: "#93c9e4", display: "flex" }}>{f.icon}</span>
+              <span
+                style={{
+                  color: "#e2eef5",
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  whiteSpace: "nowrap",
+                  letterSpacing: -0.1,
+                }}
+              >
+                {f.label}
+              </span>
             </span>
           ))}
         </div>
