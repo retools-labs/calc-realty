@@ -150,8 +150,13 @@ export default function Home() {
         <div className="rounded-2xl bg-white p-5 shadow-sm">
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/realtybook-logo.png" alt="리얼티북 RealtyBook" className="h-8 w-auto" />
-            <h1 className="text-2xl font-bold">복비 계산기</h1>
+            <img src="/icons/icon-512.png" alt="리얼티북" className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
+            <span className="flex flex-col leading-none">
+              <span className="text-base font-bold text-[#0d3b52]">
+                리얼티북 <span className="font-normal text-[#8B95A1]">RealtyBook</span>
+              </span>
+              <h1 className="mt-0.5 text-2xl font-bold">복비 계산기</h1>
+            </span>
           </div>
           <p className="mt-1 text-sm text-[#8B95A1]">
             법정 상한요율 기준 부동산 중개보수를 계산해드립니다.

@@ -1,10 +1,31 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import InstallPrompt from "@/components/InstallPrompt";
 
 export const metadata: Metadata = {
-  title: "복비 계산기 | 부동산 중개보수 계산기",
+  title: "리얼티북 | 부동산 중개보수 계산기",
   description:
     "매매·전세·월세 부동산 중개보수(복비)를 법정 상한요율 기준으로 바로 계산해보세요. 일반과세/간이과세 부가세까지 한번에.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "리얼티북",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0d3b52",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -14,7 +35,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="min-h-screen bg-toss-bg text-[#191F28]">{children}</body>
+      <body className="min-h-screen bg-toss-bg text-[#191F28]">
+        {children}
+        <InstallPrompt />
+      </body>
     </html>
   );
 }
