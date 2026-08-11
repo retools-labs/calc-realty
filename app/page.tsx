@@ -129,47 +129,49 @@ function PartnerBanner() {
           style={{ width: 150, height: 126, right: 42, top: 128, opacity: 0.09 }}
         />
 
-        {/* CTA 버튼 (절대 위치) */}
-        <span
-          className="absolute inline-flex items-center"
-          style={{
-            top: 66,
-            right: 30,
-            gap: 10,
-            background: "linear-gradient(180deg,#f8d055,#f0b81f)",
-            borderRadius: 999,
-            padding: "13px 14px 13px 26px",
-            fontSize: 15,
-            fontWeight: 800,
-            color: "#0a2540",
-            whiteSpace: "nowrap",
-            boxShadow: "0 6px 16px rgba(8,32,58,0.35)",
-          }}
-        >
-          서비스 시작하기
-          <span
-            className="flex items-center justify-center"
-            style={{
-              width: 26,
-              height: 26,
-              borderRadius: "50%",
-              background: "#0d3b57",
-              color: "#f8d055",
-              fontSize: 13,
-              lineHeight: 1,
-            }}
-          >
-            →
-          </span>
-        </span>
+        {/* 콘텐츠 컬럼 (라벨+CTA / 헤드라인 / 서브텍스트 / 칩) */}
+        <div className="relative" style={{ maxWidth: "100%" }}>
+          {/* 상단 라벨 + CTA 버튼 (좁은 화면에서도 안 겹치도록 같은 줄에 배치) */}
+          <div className="flex items-start justify-between" style={{ gap: 12, marginBottom: 14 }}>
+            <div className="flex items-center shrink-0" style={{ gap: 8, paddingTop: 6 }}>
+              <span className="shrink-0" style={{ width: 20, height: 2, background: "#f5c433" }} />
+              <span
+                className="whitespace-nowrap"
+                style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.6, color: "#f5c433" }}
+              >
+                REALTYBOOK
+              </span>
+            </div>
 
-        {/* 콘텐츠 컬럼 (라벨+헤드라인+서브텍스트+칩) */}
-        <div className="relative" style={{ maxWidth: 350 }}>
-          {/* 상단 라벨 */}
-          <div className="flex items-center" style={{ gap: 8, marginBottom: 14 }}>
-            <span style={{ width: 20, height: 2, background: "#f5c433" }} />
-            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.6, color: "#f5c433" }}>
-              REALTYBOOK
+            <span
+              className="inline-flex shrink-0 items-center"
+              style={{
+                gap: 8,
+                background: "linear-gradient(180deg,#f8d055,#f0b81f)",
+                borderRadius: 999,
+                padding: "10px 10px 10px 18px",
+                fontSize: 12.5,
+                fontWeight: 800,
+                color: "#0a2540",
+                whiteSpace: "nowrap",
+                boxShadow: "0 6px 16px rgba(8,32,58,0.35)",
+              }}
+            >
+              서비스 시작하기
+              <span
+                className="flex items-center justify-center shrink-0"
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: "50%",
+                  background: "#0d3b57",
+                  color: "#f8d055",
+                  fontSize: 12,
+                  lineHeight: 1,
+                }}
+              >
+                →
+              </span>
             </span>
           </div>
 
