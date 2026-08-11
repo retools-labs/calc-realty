@@ -120,13 +120,13 @@ function PartnerBanner() {
           boxShadow: "0 18px 44px rgba(10,37,64,0.28)",
         }}
       >
-        {/* 배경 워터마크 RB 로고 (연하게) */}
+        {/* 배경 워터마크 RB 로고 (연하게, 하단 기준 — 본문과 안 겹치도록) */}
         <img
           src="/icons/rb-mark-white.png"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute"
-          style={{ width: 150, height: 126, right: 42, top: 128, opacity: 0.09 }}
+          style={{ width: 110, height: 92, right: 20, bottom: 18, opacity: 0.08 }}
         />
 
         {/* 콘텐츠 컬럼 (라벨+CTA / 헤드라인 / 서브텍스트 / 칩) */}
@@ -175,11 +175,11 @@ function PartnerBanner() {
             </span>
           </div>
 
-          {/* 헤드라인 */}
+          {/* 헤드라인 - 화면 폭에 따라 21~28px 사이로 반응형 */}
           <p
             className="text-white"
             style={{
-              fontSize: 28,
+              fontSize: "clamp(21px, 6vw, 28px)",
               fontWeight: 800,
               lineHeight: 1.3,
               letterSpacing: -0.7,
