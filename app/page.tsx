@@ -122,22 +122,22 @@ function PartnerBanner() {
           className="pointer-events-none absolute -bottom-3 -right-3 h-24 w-24 rounded-2xl opacity-10"
         />
 
-        <div className="relative flex items-start justify-between gap-3">
+        <div className="relative flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <span className="h-px w-4 bg-[#f5c344]" />
               <span className="text-[11px] font-bold tracking-wider text-[#f5c344]">REALTYBOOK</span>
             </div>
-            <p className="mt-2 text-lg font-bold leading-snug text-white">
+            <p className="mt-2 text-base font-bold leading-snug text-white">
               리얼티북과 함께 만드는
               <br />
               성공적인 중개 파트너십!
             </p>
           </div>
 
-          <span className="mt-1 flex shrink-0 items-center gap-2 rounded-full bg-[#f5c344] py-2 pl-4 pr-2 text-xs font-bold text-[#16232E]">
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#f5c344] py-2 pl-3.5 pr-1.5 text-[11px] font-bold text-[#16232E]">
             서비스 시작하기
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#16232E] text-[#f5c344]">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#16232E] text-[#f5c344]">
               <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
