@@ -129,7 +129,7 @@ export default function InstallPrompt() {
         {platform === "android" ? (
           <>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-[#16232E]">리얼티북 앱으로 설치하기</p>
+              <p className="text-sm font-semibold text-[#16232E]">복비계산기 앱으로 설치하기</p>
               <p className="mt-0.5 text-xs text-[#8B95A1]">홈 화면에 추가하고 앱처럼 바로 실행해보세요.</p>
             </div>
             <button
