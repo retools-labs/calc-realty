@@ -122,11 +122,11 @@ function PartnerBanner() {
       >
         {/* 배경 워터마크 RB 로고 (연하게) */}
         <img
-          src="/icons/icon-512.png"
+          src="/icons/rb-mark-white.png"
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute"
-          style={{ width: 150, height: 150, right: 42, top: 128, opacity: 0.09, borderRadius: 24 }}
+          style={{ width: 150, height: 126, right: 42, top: 128, opacity: 0.09 }}
         />
 
         {/* CTA 버튼 (절대 위치) */}
@@ -135,14 +135,15 @@ function PartnerBanner() {
           style={{
             top: 66,
             right: 30,
-            gap: 8,
+            gap: 10,
             background: "linear-gradient(180deg,#f8d055,#f0b81f)",
             borderRadius: 999,
-            padding: "9px 8px 9px 16px",
-            fontSize: 12.5,
-            fontWeight: 700,
-            color: "#16232E",
+            padding: "13px 14px 13px 26px",
+            fontSize: 15,
+            fontWeight: 800,
+            color: "#0a2540",
             whiteSpace: "nowrap",
+            boxShadow: "0 6px 16px rgba(8,32,58,0.35)",
           }}
         >
           서비스 시작하기
@@ -152,9 +153,9 @@ function PartnerBanner() {
               width: 26,
               height: 26,
               borderRadius: "50%",
-              background: "#16232E",
+              background: "#0d3b57",
               color: "#f8d055",
-              fontSize: 14,
+              fontSize: 13,
               lineHeight: 1,
             }}
           >
@@ -162,40 +163,47 @@ function PartnerBanner() {
           </span>
         </span>
 
-        {/* 상단 라벨 */}
-        <div className="relative flex items-center" style={{ gap: 8, maxWidth: 200 }}>
-          <span style={{ width: 20, height: 2, background: "#f5c433" }} />
-          <span style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.6, color: "#f5c433" }}>
-            REALTYBOOK
-          </span>
-        </div>
+        {/* 콘텐츠 컬럼 (라벨+헤드라인+서브텍스트+칩) */}
+        <div className="relative" style={{ maxWidth: 350 }}>
+          {/* 상단 라벨 */}
+          <div className="flex items-center" style={{ gap: 8, marginBottom: 14 }}>
+            <span style={{ width: 20, height: 2, background: "#f5c433" }} />
+            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.6, color: "#f5c433" }}>
+              REALTYBOOK
+            </span>
+          </div>
 
-        {/* 헤드라인 */}
-        <p
-          className="relative text-white"
-          style={{ marginTop: 10, maxWidth: 200, fontSize: 28, fontWeight: 800, lineHeight: 1.25 }}
-        >
-          리얼티북과 함께 만드는
-          <br />
-          성공적인 중개 파트너십!
-        </p>
+          {/* 헤드라인 */}
+          <p
+            className="text-white"
+            style={{
+              fontSize: 28,
+              fontWeight: 800,
+              lineHeight: 1.3,
+              letterSpacing: -0.7,
+              marginBottom: 13,
+              textWrap: "pretty",
+            }}
+          >
+            리얼티북과 함께 만드는 성공적인 중개 파트너십!
+          </p>
 
-        {/* 서브텍스트 */}
-        <p
-          className="relative"
-          style={{ marginTop: 10, maxWidth: 300, fontSize: 13.5, lineHeight: 1.5, color: "#9fbfd6" }}
-        >
-          흩어진 중개 업무를 한 곳으로 정리.
-          <br />
-          투명하고, 간결한 자동화로 핵심 업무에만 집중하세요.
-        </p>
+          {/* 서브텍스트 */}
+          <p
+            style={{
+              fontSize: 13.5,
+              lineHeight: 1.65,
+              color: "#9fbfd6",
+              marginBottom: 34,
+              textWrap: "pretty",
+            }}
+          >
+            흩어진 중개 업무를 한 곳으로 정리. 투명하고, 간결한 자동화로 핵심 업무에만 집중하세요.
+          </p>
 
-        {/* 기능 칩 */}
-        <div
-          className="relative flex flex-wrap items-center"
-          style={{ marginTop: 20, gap: 20, justifyContent: "space-between" }}
-        >
-          {BANNER_FEATURES.map((f) => (
+          {/* 기능 칩 */}
+          <div className="flex flex-wrap items-center" style={{ gap: 20, justifyContent: "space-between" }}>
+            {BANNER_FEATURES.map((f) => (
             <span
               key={f.label}
               className="inline-flex items-center"
@@ -221,7 +229,8 @@ function PartnerBanner() {
                 {f.label}
               </span>
             </span>
-          ))}
+            ))}
+          </div>
         </div>
       </a>
     </div>
