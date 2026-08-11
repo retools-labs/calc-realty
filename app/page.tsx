@@ -218,7 +218,7 @@ function PartnerBanner() {
             리얼티북과 함께 만드는 성공적인 중개 파트너십!
           </p>
 
-          {/* 서브텍스트 - 단어 중간에서 안 끊기도록 keep-all */}
+          {/* 서브텍스트 - 두 문장 사이는 폭에 상관없이 항상 여기서 줄바꿈 */}
           <p
             style={{
               fontSize: 13.5,
@@ -229,17 +229,21 @@ function PartnerBanner() {
               wordBreak: "keep-all",
             }}
           >
-            흩어진 중개 업무를 한 곳으로 정리. 투명하고, 간결한 자동화로 핵심 업무에만 집중하세요.
+            흩어진 중개 업무를 한 곳으로 정리.
+            <br />
+            투명하고, 간결한 자동화로 핵심 업무에만 집중하세요.
           </p>
 
-          {/* 기능 칩 - space-between 대신 flex-start로, 줄바꿈돼도 칩이 이상하게 흩어지지 않도록 */}
-          <div className="flex flex-wrap items-center" style={{ gap: 20, justifyContent: "flex-start" }}>
-            {BANNER_FEATURES.map((f) => (
+          {/* 기능 칩 - 위에 하나, 아래 둘로 항상 고정 배치 (폭에 따라 애매하게 2+1로 갈라지지 않도록) */}
+          <div className="grid" style={{ gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+            {BANNER_FEATURES.map((f, i) => (
             <span
               key={f.label}
               className="inline-flex items-center"
               style={{
                 gap: 7,
+                gridColumn: i === 0 ? "1 / -1" : undefined,
+                justifySelf: "start",
                 background: "linear-gradient(180deg,rgba(255,255,255,0.11),rgba(255,255,255,0.05))",
                 border: "1px solid rgba(255,255,255,0.16)",
                 borderRadius: 999,
