@@ -237,7 +237,7 @@ function PartnerBanner() {
           </p>
 
           {/* 기능 칩 - 위에 하나, 아래 둘로 항상 고정 배치 (폭에 따라 애매하게 2+1로 갈라지지 않도록) */}
-          <div className="grid" style={{ gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+          <div className="grid" style={{ gap: 10, gridTemplateColumns: "max-content max-content" }}>
             {BANNER_FEATURES.map((f, i) => (
             <span
               key={f.label}
