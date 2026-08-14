@@ -338,7 +338,11 @@ export default function Home() {
             <img src="/icons/icon-512.png" alt="리얼티북" className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
             <span className="flex flex-col leading-none">
               <span className="text-base font-bold text-[#0d3b52]">
-                리얼티북 <span className="font-normal text-[#8B95A1]">RealtyBook</span>
+                리얼티북
+                <sup className="ml-0.5 text-[10px] font-normal text-[#8B95A1]" title="상표 출원 중 (출원번호 40-2026-0168198)">
+                  TM
+                </sup>{" "}
+                <span className="font-normal text-[#8B95A1]">RealtyBook</span>
               </span>
               <h1 className="mt-0.5 text-2xl font-bold">복비 계산기</h1>
             </span>
