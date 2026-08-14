@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "리얼티북 | 부동산 중개보수 계산기",
@@ -37,6 +38,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className="min-h-screen bg-toss-bg text-[#191F28]">
         {children}
+        <Footer />
         <InstallPrompt />
       </body>
     </html>
