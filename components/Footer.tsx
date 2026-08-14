@@ -12,7 +12,14 @@ export default function Footer() {
       <div className="mx-auto max-w-md">
         <div className="mb-3 flex items-center gap-2">
           <RetoolsMark size={22} />
-          <span className="text-xs font-bold text-gray-500">{r.companyNameEn}</span>
+          <a
+            href="https://retools.kr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-bold text-gray-500 hover:text-[#0d3b52] hover:underline"
+          >
+            {r.companyNameEn}
+          </a>
         </div>
 
         <p className="mb-2 flex flex-wrap gap-x-3 gap-y-1 text-gray-500">
