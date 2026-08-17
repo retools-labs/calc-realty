@@ -23,9 +23,7 @@ export default function BrokerageFeeCalculator() {
   const [price, setPrice] = useState(0);
   const [deposit, setDeposit] = useState(0);
   const [monthlyRent, setMonthlyRent] = useState(0);
-  const [vatType, setVatType] = useState<VatType>("general");
-  const [negotiate, setNegotiate] = useState(false);
-  const [negotiatedRate, setNegotiatedRate] = useState<number>(0);
+  const [vatType, setVatType] = useState<VatType>("exempt");
   const [coBrokerage, setCoBrokerage] = useState<CoBrokerage>("double");
   const [rsRate, setRsRate] = useState<number>(70);
   const [copied, setCopied] = useState(false);
@@ -39,11 +37,8 @@ export default function BrokerageFeeCalculator() {
       deposit: dealType === "lease" ? deposit : undefined,
       monthlyRent: dealType === "lease" && isMonthly ? monthlyRent : undefined,
       vatType,
-      negotiatedRate: negotiate ? negotiatedRate : undefined,
     });
-  }, [propertyType, dealType, price, deposit, monthlyRent, isMonthly, vatType, negotiate, negotiatedRate]);
-
-  const savedByNegotiation = Math.max(0, result.capFee - result.appliedFee);
+  }, [propertyType, dealType, price, deposit, monthlyRent, isMonthly, vatType]);
 
   // 공동중개(단타/양타) + RS 분배율 — 세전 중개보수(appliedFee) 기준으로 계산.
   // 부가세는 사무소가 신고·납부하는 몫이라 개인 분배 대상에서 제외한다.
@@ -72,9 +67,6 @@ export default function BrokerageFeeCalculator() {
       `거래유형: ${dealLabel}`,
       `산정 거래금액: ${formatKRW(result.dealAmount)}`,
       `상한요율: ${(result.capRate * 100).toFixed(2)}% (상한 보수 ${formatKRW(result.capFee)})`,
-      negotiate
-        ? `협의요율: ${(result.appliedRate * 100).toFixed(2)}% → 절약액 ${formatKRW(savedByNegotiation)}`
-        : null,
       `중개보수: ${formatKRW(result.appliedFee)}`,
       `부가세(${(result.vatRate * 100).toFixed(0)}%): ${formatKRW(result.vat)}`,
       `최종 지급액: ${formatKRW(result.totalWithVat)}`,
@@ -84,13 +76,12 @@ export default function BrokerageFeeCalculator() {
       userMode === "agent" ? `RS 분배율 ${rsRate}% → 개인 수령액 ${formatKRW(personalFee)}` : null,
     ].filter(Boolean);
     return lines.join("\n");
-  }, [result, dealType, isMonthly, negotiate, savedByNegotiation, userMode, coBrokerage, rsRate, officeFee, personalFee]);
+  }, [result, dealType, isMonthly, userMode, coBrokerage, rsRate, officeFee, personalFee]);
 
   const receiptLines = useMemo(() => {
     const base = [
       { label: "산정 거래금액", amount: result.dealAmount },
       { label: "상한요율 기준 보수", amount: result.capFee },
-      ...(negotiate ? [{ label: "네고로 절약된 금액", amount: -savedByNegotiation }] : []),
       { label: `부가세 (${(result.vatRate * 100).toFixed(0)}%)`, amount: result.vat },
     ];
     if (userMode === "agent") {
@@ -100,7 +91,7 @@ export default function BrokerageFeeCalculator() {
       );
     }
     return base;
-  }, [result, negotiate, savedByNegotiation, userMode, coBrokerage, rsRate, officeFee, personalFee]);
+  }, [result, userMode, coBrokerage, rsRate, officeFee, personalFee]);
 
   async function handleCopy() {
     try {
@@ -243,36 +234,7 @@ export default function BrokerageFeeCalculator() {
         </div>
       )}
 
-      <label className="mt-5 flex items-center justify-between border-t border-[#E5E8EB] pt-4">
-        <span className="text-sm font-semibold">협의(네고) 요율로 계산하기</span>
-        <input
-          type="checkbox"
-          className="h-5 w-5"
-          checked={negotiate}
-          onChange={(e) => setNegotiate(e.target.checked)}
-        />
-      </label>
-      {negotiate && (
-        <div className="mt-3">
-          <div className="mb-1 flex items-center justify-between text-sm text-[#4E5968]">
-            <span>협의요율</span>
-            <span className="font-semibold text-[#14607F]">
-              {negotiatedRate.toFixed(2)}% (상한 {(result.capRate * 100).toFixed(2)}%)
-            </span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={result.capRate * 100}
-            step={0.01}
-            value={Math.min(negotiatedRate, result.capRate * 100)}
-            onChange={(e) => setNegotiatedRate(Number(e.target.value))}
-            className="w-full accent-[#14607F]"
-          />
-        </div>
-      )}
-
-      <div className="mt-4 rounded-xl bg-[#EAF2F7] px-4 py-3 text-sm font-medium text-[#14607F]">
+      <div className="mt-5 rounded-xl bg-[#EAF2F7] px-4 py-3 text-sm font-medium text-[#14607F]">
         {result.bracketLabel} · 상한요율 {(result.capRate * 100).toFixed(2)}%
       </div>
 
@@ -285,12 +247,6 @@ export default function BrokerageFeeCalculator() {
           <span>상한요율 기준 보수</span>
           <span>{formatKRW(result.capFee)}</span>
         </div>
-        {negotiate && (
-          <div className="flex justify-between text-[#14607F]">
-            <span>네고로 절약된 금액</span>
-            <span>−{formatKRW(savedByNegotiation)}</span>
-          </div>
-        )}
         <div className="flex justify-between">
           <span>부가세 ({(result.vatRate * 100).toFixed(0)}%)</span>
           <span>{formatKRW(result.vat)}</span>
