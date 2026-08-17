@@ -1,4 +1,4 @@
-import { calcBrokerageFee, formatKRW } from './lib/calc.ts';
+import { calcBrokerageFee, formatKRW } from '../lib/calc.ts';
 
 const cases = [
   {
