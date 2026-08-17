@@ -1,7 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans_KR, Sora } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import Footer from "@/components/Footer";
+
+// design-preview: 마스터플랜 4장 타이포그래피 스펙(영문/숫자 Sora, 국문 IBM Plex Sans KR).
+const sora = Sora({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-sora" });
+const plexKr = IBM_Plex_Sans_KR({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-kr",
+});
 
 export const metadata: Metadata = {
   title: "리얼티북 | 부동산 중개보수 계산기",
@@ -35,8 +44,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body className="min-h-screen bg-toss-bg text-[#191F28]">
+    <html lang="ko" className={`${sora.variable} ${plexKr.variable}`}>
+      <body className="min-h-screen bg-toss-bg text-[#191F28] font-plexkr">
         {children}
         <Footer />
         <InstallPrompt />

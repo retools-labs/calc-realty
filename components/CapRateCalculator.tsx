@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { formatKRW } from "@/lib/calc";
 import { calcCapRate, calcPremiumFee } from "@/lib/capRate";
 import { WonInput } from "./ui";
+import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
 
 function formatPercent(v: number): string {
   return `${v.toFixed(2)}%`;
@@ -74,7 +75,7 @@ export default function CapRateCalculator() {
         <div>
           <div className="mb-1 flex items-center justify-between text-sm text-[#4E5968]">
             <span>대출 연이자율</span>
-            <span className="font-semibold text-[#14607F]">{loanRatePercent.toFixed(2)}%</span>
+            <span className="font-semibold text-cobalt">{loanRatePercent.toFixed(2)}%</span>
           </div>
           <input
             type="range"
@@ -83,34 +84,27 @@ export default function CapRateCalculator() {
             step={0.1}
             value={loanRatePercent}
             onChange={(e) => setLoanRatePercent(Number(e.target.value))}
-            className="w-full accent-[#14607F]"
+            className="w-full accent-cobalt"
           />
         </div>
 
         <WonInput label="월세" value={monthlyRent} onChange={setMonthlyRent} />
       </div>
 
-      <div className="mt-4 space-y-1 border-t border-[#E5E8EB] pt-4 text-sm text-[#4E5968]">
-        <div className="flex justify-between">
-          <span>실투자금 (매매가−보증금−대출금)</span>
-          <span>{formatKRW(capResult.netInvestment)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>연간 임대수익</span>
-          <span>{formatKRW(capResult.annualRentIncome)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>연간 대출이자</span>
-          <span>−{formatKRW(capResult.annualLoanInterest)}</span>
-        </div>
-        <div className="mt-2 flex justify-between border-t border-[#E5E8EB] pt-2 text-base font-bold text-[#16232E]">
-          <span>임대수익률</span>
-          <span className="text-[#14607F]">
-            {capResult.capRatePercent !== null ? formatPercent(capResult.capRatePercent) : "계산 불가"}
-          </span>
-        </div>
+      <div className="mt-5">
+        <ResultCard>
+          <ResultHeadline
+            label="임대수익률(Cap Rate)"
+            value={capResult.capRatePercent !== null ? formatPercent(capResult.capRatePercent) : "계산 불가"}
+            subtitle="세전·감가상각 미반영 단순 참고 지표"
+          />
+          <ResultDivider />
+          <ResultRow label="실투자금 (매매가−보증금−대출금)" value={formatKRW(capResult.netInvestment)} />
+          <ResultRow label="연간 임대수익" value={formatKRW(capResult.annualRentIncome)} />
+          <ResultRow label="연간 대출이자" value={`−${formatKRW(capResult.annualLoanInterest)}`} />
+        </ResultCard>
         {capResult.capRatePercent === null && (
-          <p className="pt-1 text-xs text-[#9AA5B1]">
+          <p className="mt-2 text-xs text-[#9AA5B1]">
             * 실투자금(매매가−보증금−대출금)이 0 이하라 수익률을 계산할 수 없어요. 값을 확인해주세요.
           </p>
         )}
@@ -123,7 +117,7 @@ export default function CapRateCalculator() {
         <div>
           <div className="mb-1 flex items-center justify-between text-sm text-[#4E5968]">
             <span>협의 수수료율</span>
-            <span className="font-semibold text-[#14607F]">{negotiatedRatePercent}%</span>
+            <span className="font-semibold text-cobalt">{negotiatedRatePercent}%</span>
           </div>
           <input
             type="range"
@@ -132,33 +126,30 @@ export default function CapRateCalculator() {
             step={0.5}
             value={negotiatedRatePercent}
             onChange={(e) => setNegotiatedRatePercent(Number(e.target.value))}
-            className="w-full accent-[#14607F]"
+            className="w-full accent-cobalt"
           />
           <p className="mt-1 text-xs text-[#8B95A1]">
             * 권리금 중개수수료는 법정 상한이 없는 협의 수수료로, 통상 5~10% 범위에서 결정됩니다.
           </p>
         </div>
 
-        <div className="space-y-1 text-sm text-[#4E5968]">
-          <div className="flex justify-between">
-            <span>5% 구간</span>
-            <span>{formatKRW(premiumResult.low)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>10% 구간</span>
-            <span>{formatKRW(premiumResult.high)}</span>
-          </div>
-          <div className="mt-2 flex justify-between border-t border-[#E5E8EB] pt-2 text-base font-bold text-[#16232E]">
-            <span>협의요율 {negotiatedRatePercent}% 예상액</span>
-            <span className="text-[#14607F]">{formatKRW(premiumResult.mid)}</span>
-          </div>
-        </div>
+        <ResultCard>
+          <ResultHeadline
+            label={`협의요율 ${negotiatedRatePercent}% 예상액`}
+            value={formatKRW(premiumResult.mid).replace("원", "")}
+            suffix="원"
+            subtitle={`통상 5~10% 구간: ${formatKRW(premiumResult.low)} ~ ${formatKRW(premiumResult.high)}`}
+          />
+          <ResultDivider />
+          <ResultRow label="5% 구간" value={formatKRW(premiumResult.low)} />
+          <ResultRow label="10% 구간" value={formatKRW(premiumResult.high)} />
+        </ResultCard>
       </div>
 
       <button
         type="button"
         onClick={handleCopy}
-        className="mt-4 w-full rounded-xl bg-[#14607F] py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
+        className="mt-4 w-full rounded-xl bg-cobalt py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
       >
         {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
       </button>

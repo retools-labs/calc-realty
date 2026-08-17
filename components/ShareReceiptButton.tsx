@@ -76,7 +76,7 @@ export default function ShareReceiptButton({ targetRef, fileName = "리얼티북
         type="button"
         onClick={handleClick}
         disabled={busy}
-        className="mt-3 w-full rounded-xl border border-[#14607F] py-3 text-sm font-semibold text-[#14607F] transition active:scale-[0.99] disabled:opacity-50"
+        className="mt-3 w-full rounded-xl border border-cobalt py-3 text-sm font-semibold text-cobalt transition active:scale-[0.99] disabled:opacity-50"
       >
         {busy ? "이미지 생성 중..." : "영수증 카드 이미지로 저장·공유"}
       </button>

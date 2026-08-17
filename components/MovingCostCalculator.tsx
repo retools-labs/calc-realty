@@ -6,12 +6,15 @@ import { calcLeaseMovingCost, calcSaleMovingCost, type HouseCount } from "@/lib/
 import { SegButton, WonInput } from "./ui";
 import ReceiptCard from "./ReceiptCard";
 import ShareReceiptButton from "./ShareReceiptButton";
+import Modal from "./Modal";
+import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
 
 type DealKind = "sale" | "lease";
 
 export default function MovingCostCalculator() {
   const [dealKind, setDealKind] = useState<DealKind>("sale");
   const [copied, setCopied] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
 
   // 매매
   const [price, setPrice] = useState(0);
@@ -184,7 +187,7 @@ export default function MovingCostCalculator() {
               <input
                 type="number"
                 min={1}
-                className="w-full rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 text-lg font-semibold outline-none focus:border-[#14607F]"
+                className="w-full rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 text-lg font-semibold outline-none focus:border-cobalt"
                 value={periodMonths}
                 onChange={(e) => setPeriodMonths(Math.max(1, Number(e.target.value) || 0))}
               />
@@ -204,7 +207,7 @@ export default function MovingCostCalculator() {
                 <div className="mt-3">
                   <div className="mb-1 flex items-center justify-between text-sm text-[#4E5968]">
                     <span>보증료율</span>
-                    <span className="font-semibold text-[#14607F]">{guaranteeRatePercent.toFixed(3)}%</span>
+                    <span className="font-semibold text-cobalt">{guaranteeRatePercent.toFixed(3)}%</span>
                   </div>
                   <input
                     type="range"
@@ -213,7 +216,7 @@ export default function MovingCostCalculator() {
                     step={0.001}
                     value={guaranteeRatePercent}
                     onChange={(e) => setGuaranteeRatePercent(Number(e.target.value))}
-                    className="w-full accent-[#14607F]"
+                    className="w-full accent-cobalt"
                   />
                   <p className="mt-1 text-xs text-[#8B95A1]">
                     * 실제 요율은 보증기관·신용도·주택유형에 따라 0.115~0.154% 범위에서 달라져요.
@@ -228,7 +231,50 @@ export default function MovingCostCalculator() {
         )}
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5">
+        <ResultCard>
+          <ResultHeadline
+            label={dealKind === "sale" ? "부동산 취득 총 필요자금" : "전월세 입주 총 필요자금"}
+            value={formatKRW(total).replace("원", "")}
+            suffix="원"
+            subtitle={receiptSubtitle}
+          />
+          <ResultDivider />
+          {lines.map((l) => (
+            <ResultRow key={l.label} label={l.label} value={formatKRW(l.amount)} />
+          ))}
+        </ResultCard>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="w-full rounded-xl bg-cobalt py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
+        >
+          {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowReceipt(true)}
+          className="w-full rounded-xl border border-cobalt py-3 text-sm font-semibold text-cobalt transition active:scale-[0.99]"
+        >
+          영수증 카드 보기
+        </button>
+      </div>
+
+      <Modal open={showReceipt} onClose={() => setShowReceipt(false)}>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-sm font-bold text-[#16232E]">영수증 카드 미리보기</span>
+          <button
+            type="button"
+            onClick={() => setShowReceipt(false)}
+            className="text-2xl leading-none text-[#8B95A1]"
+            aria-label="닫기"
+          >
+            ×
+          </button>
+        </div>
         <ReceiptCard
           ref={receiptRef}
           title={dealKind === "sale" ? "부동산 취득 총 필요자금 영수증" : "전월세 입주 총 필요자금 영수증"}
@@ -236,17 +282,8 @@ export default function MovingCostCalculator() {
           lines={lines}
           total={total}
         />
-      </div>
-
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="mt-4 w-full rounded-xl bg-[#14607F] py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
-      >
-        {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
-      </button>
-
-      <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_이사비용_영수증.png" />
+        <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_이사비용_영수증.png" />
+      </Modal>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         취득세는 다주택·조정대상지역 여부에 따라 세율이 자주 바뀌고, 법무사수수료·국민주택채권

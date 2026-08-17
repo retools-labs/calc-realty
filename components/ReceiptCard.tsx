@@ -23,6 +23,10 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
   { title, subtitle, lines, total, totalLabel = "합계" },
   ref
 ) {
+  // 아직 금액을 입력하지 않은 상태(전부 0원)라면 숫자 0이 잔뜩 찍힌 영수증 대신
+  // 안내 문구로 비워둔다 — 사용자가 값을 입력하면 자연스럽게 실시간 숫자로 채워짐.
+  const isEmpty = total === 0 && lines.every((l) => l.amount === 0);
+
   return (
     <div ref={ref} className="rounded-xl border border-dashed border-[#C7D2DB] bg-white">
       <div className="p-4">
@@ -30,18 +34,30 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
         {subtitle && (
           <div className="mt-1 text-center text-[11px] text-[#9AA5B1]">{subtitle}</div>
         )}
-        <div className="mt-3 space-y-1.5 border-t border-dashed border-[#C7D2DB] pt-3">
-          {lines.map((l) => (
-            <div key={l.label} className="flex justify-between text-sm text-[#4E5968]">
-              <span>{l.label}</span>
-              <span>{formatKRW(l.amount)}</span>
+        {isEmpty ? (
+          <div className="flex min-h-[120px] items-center justify-center border-t border-dashed border-[#C7D2DB] pt-3">
+            <p className="text-center text-sm leading-relaxed text-[#9AA5B1]">
+              금액을 입력하시면
+              <br />
+              실시간 영수증이 생성됩니다.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="mt-3 space-y-1.5 border-t border-dashed border-[#C7D2DB] pt-3">
+              {lines.map((l) => (
+                <div key={l.label} className="flex justify-between text-sm text-[#4E5968]">
+                  <span>{l.label}</span>
+                  <span>{formatKRW(l.amount)}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-3 flex justify-between border-t border-dashed border-[#C7D2DB] pt-3 text-base font-bold text-[#16232E]">
-          <span>{totalLabel}</span>
-          <span className="text-[#14607F]">{formatKRW(total)}</span>
-        </div>
+            <div className="mt-3 flex justify-between border-t border-dashed border-[#C7D2DB] pt-3 text-base font-bold text-[#16232E]">
+              <span>{totalLabel}</span>
+              <span className="text-cobalt">{formatKRW(total)}</span>
+            </div>
+          </>
+        )}
       </div>
       {/* 하단 CTA: 텍스트를 동적으로 조립하면 카드 폭(특히 모바일)에 따라 flex-wrap이
           제각각 다른 지점에서 줄바꿈되어 정렬이 흐트러지는 문제가 있었다. 대신 Claude

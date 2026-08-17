@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { calcProrate } from "@/lib/prorate";
 import { formatKRW } from "@/lib/calc";
 import { WonInput } from "./ui";
+import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
 
 function todayISO(): string {
   const d = new Date();
@@ -12,7 +13,11 @@ function todayISO(): string {
   return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
-export default function ProrateCalculator() {
+// design-preview: 이 탭은 app/page.tsx에서 공인중개사 실무용 모드일 때만 노출된다(잠금 게이트).
+// mode prop은 상위 페이지와의 인터페이스를 맞추기 위해 받되, 계산 로직 자체는 매도/매수인 분리 없이
+// 기존 단일 합계 방식을 그대로 유지한다 — 목업의 분리 계산은 별도 기능 확장으로 남겨둠.
+export default function ProrateCalculator({ mode }: { mode?: "customer" | "agent" } = {}) {
+  void mode;
   const [moveInDate, setMoveInDate] = useState(todayISO());
   const [monthlyRent, setMonthlyRent] = useState(0);
   const [monthlyMaintenanceFee, setMonthlyMaintenanceFee] = useState(0);
@@ -68,7 +73,7 @@ export default function ProrateCalculator() {
           <span className="mb-1 block text-sm font-medium text-[#4E5968]">잔금(입주)일</span>
           <input
             type="date"
-            className="w-full rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 text-lg font-semibold outline-none focus:border-[#14607F]"
+            className="w-full rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 text-lg font-semibold outline-none focus:border-cobalt"
             value={moveInDate}
             onChange={(e) => setMoveInDate(e.target.value)}
           />
@@ -101,36 +106,27 @@ export default function ProrateCalculator() {
 
       {result ? (
         <>
-          <div className="mt-4 rounded-xl bg-[#EAF2F7] px-4 py-3 text-sm font-medium text-[#14607F]">
-            {result.year}년 {result.month}월 (총 {result.daysInMonth}일) · 입주일 {result.moveInDay}일부터{" "}
-            {result.occupiedDays}일 거주
-          </div>
-
-          <div className="mt-4 space-y-1 border-t border-[#E5E8EB] pt-4 text-sm text-[#4E5968]">
-            <div className="flex justify-between">
-              <span>일할 월세</span>
-              <span>{formatKRW(result.proratedRent)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>일할 관리비</span>
-              <span>{formatKRW(result.proratedMaintenanceFee)}</span>
-            </div>
-            {includeRepairFund && (
-              <div className="flex justify-between">
-                <span>일할 장기수선충당금</span>
-                <span>{formatKRW(result.proratedRepairFund)}</span>
-              </div>
-            )}
-            <div className="mt-2 flex justify-between border-t border-[#E5E8EB] pt-2 text-base font-bold text-[#16232E]">
-              <span>합계</span>
-              <span className="text-[#14607F]">{formatKRW(result.totalProrated)}</span>
-            </div>
+          <div className="mt-4">
+            <ResultCard>
+              <ResultHeadline
+                label={`${result.year}년 ${result.month}월 · 입주일 ${result.moveInDay}일부터 ${result.occupiedDays}일 거주 (총 ${result.daysInMonth}일)`}
+                value={formatKRW(result.totalProrated).replace("원", "")}
+                suffix="원"
+                subtitle="일할 정산 합계"
+              />
+              <ResultDivider />
+              <ResultRow label="일할 월세" value={formatKRW(result.proratedRent)} />
+              <ResultRow label="일할 관리비" value={formatKRW(result.proratedMaintenanceFee)} />
+              {includeRepairFund && (
+                <ResultRow label="일할 장기수선충당금" value={formatKRW(result.proratedRepairFund)} />
+              )}
+            </ResultCard>
           </div>
 
           <button
             type="button"
             onClick={handleCopy}
-            className="mt-4 w-full rounded-xl bg-[#14607F] py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
+            className="mt-4 w-full rounded-xl bg-cobalt py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
           >
             {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
           </button>

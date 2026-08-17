@@ -22,7 +22,7 @@ export function WonInput({
   return (
     <label className="block">
       <span className="mb-1 block text-sm font-medium text-[#4E5968]">{label}</span>
-      <div className="flex items-center rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 focus-within:border-[#14607F]">
+      <div className="flex items-center rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 focus-within:border-cobalt">
         <input
           inputMode="numeric"
           className="w-full bg-transparent text-lg font-semibold outline-none placeholder:text-[#B0B8C1]"
@@ -54,7 +54,7 @@ export function SegButton<T extends string>({
           onClick={() => onChange(opt.value)}
           className={`rounded-xl px-3 py-3 text-sm font-semibold transition ${
             value === opt.value
-              ? "bg-[#14607F] text-white"
+              ? "bg-cobalt text-white"
               : "bg-white text-[#4E5968] border border-[#E5E8EB]"
           }`}
         >

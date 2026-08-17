@@ -200,54 +200,103 @@ function PartnerBanner() {
 }
 
 type CalcTab = "fee" | "prorate" | "movingCost" | "capRate";
+type Mode = "customer" | "agent";
 
-const TABS: { value: CalcTab; label: string }[] = [
-  { value: "fee", label: "복비 계산기" },
-  { value: "prorate", label: "일할 계산기" },
-  { value: "movingCost", label: "부대비용" },
-  { value: "capRate", label: "상가 수익률" },
+const TABS: { value: CalcTab; label: string; icon: string; agentOnly?: boolean }[] = [
+  { value: "fee", label: "복비 계산기", icon: "💰" },
+  { value: "prorate", label: "일할 계산기", icon: "📅", agentOnly: true },
+  { value: "movingCost", label: "부대비용", icon: "🏠" },
+  { value: "capRate", label: "상가 수익률", icon: "🏢" },
 ];
 
 export default function Home() {
   const [tab, setTab] = useState<CalcTab>("fee");
+  const [mode, setMode] = useState<Mode>("customer");
+
+  const activeTabInfo = TABS.find((t) => t.value === tab)!;
+  const locked = mode === "customer" && activeTabInfo.agentOnly;
 
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
       <div className="mx-auto mt-6 max-w-md px-4">
-        <div className="flex items-center gap-2 rounded-2xl bg-white p-4 shadow-sm">
-          <img src="/icons/icon-512.png" alt="리얼티북" className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
-          <span className="flex flex-col leading-none">
-            <span className="text-base font-bold text-[#0d3b52]">
-              리얼티북
-              <sup className="ml-0.5 text-[10px] font-normal text-[#8B95A1]" title="상표 출원 중 (출원번호 40-2026-0168198)">
-                TM
-              </sup>{" "}
-              <span className="font-normal text-[#8B95A1]">RealtyBook</span>
+        <div className="rounded-2xl bg-navy p-4 shadow-sm">
+          <div className="flex items-center gap-2">
+            <img src="/icons/icon-512.png" alt="리얼티북" className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
+            <span className="flex flex-1 flex-col leading-none">
+              <span className="flex items-center gap-1.5 font-sora text-base font-bold text-white">
+                부동산 계산기
+                <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-cyan">
+                  v1.0
+                </span>
+              </span>
+              <span className="mt-1 text-xs text-[#7FA3C7]">복비·일할정산·취득세·수익률</span>
             </span>
-            <span className="mt-0.5 text-sm text-[#8B95A1]">부동산 계산 툴킷</span>
-          </span>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-1.5 rounded-xl bg-white/10 p-1">
+            {(
+              [
+                { value: "customer", label: "일반고객용" },
+                { value: "agent", label: "공인중개사 실무용" },
+              ] as { value: Mode; label: string }[]
+            ).map((m) => (
+              <button
+                key={m.value}
+                type="button"
+                onClick={() => setMode(m.value)}
+                className={`rounded-lg px-2 py-2 text-xs font-semibold transition sm:text-sm ${
+                  mode === m.value ? "bg-cobalt text-white" : "text-[#9FBFD6]"
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-1.5 rounded-2xl bg-white p-1.5 shadow-sm sm:grid-cols-4">
+        <div className="mt-3 grid grid-cols-4 gap-1.5">
           {TABS.map((t) => (
             <button
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`rounded-xl px-1 py-2.5 text-xs font-semibold transition sm:text-sm ${
-                tab === t.value ? "bg-[#14607F] text-white" : "text-[#4E5968]"
+              className={`flex flex-col items-center gap-1 rounded-2xl px-1 py-3 text-[11px] font-semibold transition sm:text-xs ${
+                tab === t.value ? "bg-navy text-white shadow-sm" : "bg-white text-[#4E5968] shadow-sm"
               }`}
             >
-              {t.label}
+              <span className="text-lg leading-none">{t.icon}</span>
+              <span className="leading-tight">{t.label}</span>
+              {t.agentOnly && mode === "customer" && (
+                <span className={`text-[10px] ${tab === t.value ? "text-[#7FA3C7]" : "text-[#B0B8C1]"}`}>🔒</span>
+              )}
             </button>
           ))}
         </div>
 
         <div className="mt-3">
-          {tab === "fee" && <BrokerageFeeCalculator />}
-          {tab === "prorate" && <ProrateCalculator />}
-          {tab === "movingCost" && <MovingCostCalculator />}
-          {tab === "capRate" && <CapRateCalculator />}
+          {locked ? (
+            <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
+              <div className="text-3xl">🔒</div>
+              <p className="mt-3 text-base font-bold text-[#16232E]">중개사 실무용 기능입니다</p>
+              <p className="mt-1.5 text-sm text-[#8B95A1]">
+                {activeTabInfo.label}은(는) 공인중개사 실무용 모드에서 이용할 수 있어요.
+              </p>
+              <button
+                type="button"
+                onClick={() => setMode("agent")}
+                className="mt-5 w-full rounded-xl bg-cobalt py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
+              >
+                실무용 모드로 전환
+              </button>
+            </div>
+          ) : (
+            <>
+              {tab === "fee" && <BrokerageFeeCalculator mode={mode} />}
+              {tab === "prorate" && <ProrateCalculator mode={mode} />}
+              {tab === "movingCost" && <MovingCostCalculator />}
+              {tab === "capRate" && <CapRateCalculator />}
+            </>
+          )}
         </div>
       </div>
 

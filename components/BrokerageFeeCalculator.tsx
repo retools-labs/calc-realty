@@ -11,12 +11,14 @@ import {
 import { SegButton, WonInput } from "./ui";
 import ReceiptCard from "./ReceiptCard";
 import ShareReceiptButton from "./ShareReceiptButton";
+import Modal from "./Modal";
+import { ResultCard, ResultDivider, ResultHeadline, ResultHighlight, ResultHighlightRow, ResultRow } from "./ResultCard";
 
 type UserMode = "customer" | "agent";
 type CoBrokerage = "single" | "double"; // 단타(공동중개, 50%) / 양타(단독 또는 양쪽 대리, 100%)
 
-export default function BrokerageFeeCalculator() {
-  const [userMode, setUserMode] = useState<UserMode>("customer");
+// design-preview: 일반/실무용 전환이 app/page.tsx 상단 글로벌 스위치로 옮겨져서 mode를 prop으로 받는다.
+export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserMode }) {
   const [propertyType, setPropertyType] = useState<PropertyType>("house");
   const [dealType, setDealType] = useState<DealType>("sale");
   const [isMonthly, setIsMonthly] = useState(false);
@@ -27,6 +29,7 @@ export default function BrokerageFeeCalculator() {
   const [coBrokerage, setCoBrokerage] = useState<CoBrokerage>("double");
   const [rsRate, setRsRate] = useState<number>(70);
   const [copied, setCopied] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
   const receiptRef = useRef<HTMLDivElement>(null);
 
   const result = useMemo(() => {
@@ -49,9 +52,9 @@ export default function BrokerageFeeCalculator() {
     propertyType === "house"
       ? "주택"
       : propertyType === "officetelSmall"
-        ? "오피스텔(85㎡↓)"
+        ? "오피스텔(85㎡ 이하)"
         : propertyType === "officetelOther"
-          ? "오피스텔"
+          ? "오피스텔(85㎡ 초과)"
           : "토지·상가";
   const dealLabel = dealType === "sale" ? "매매/교환" : isMonthly ? "월세" : "전세(임대차)";
   const receiptSubtitle = useMemo(() => {
@@ -110,17 +113,6 @@ export default function BrokerageFeeCalculator() {
         법정 상한요율 기준 부동산 중개보수를 계산해드립니다.
       </p>
 
-      <div className="mt-4">
-        <SegButton
-          value={userMode}
-          onChange={setUserMode}
-          options={[
-            { value: "customer", label: "일반고객용" },
-            { value: "agent", label: "공인중개사 실무용" },
-          ]}
-        />
-      </div>
-
       <div className="mt-5 space-y-4">
         <div>
           <span className="mb-2 block text-sm font-medium text-[#4E5968]">매물 유형</span>
@@ -129,8 +121,8 @@ export default function BrokerageFeeCalculator() {
             onChange={setPropertyType}
             options={[
               { value: "house", label: "주택" },
-              { value: "officetelSmall", label: "오피스텔(85㎡↓)" },
-              { value: "officetelOther", label: "오피스텔(그외)" },
+              { value: "officetelSmall", label: "오피스텔 (85㎡ 이하)" },
+              { value: "officetelOther", label: "오피스텔 (85㎡ 초과)" },
               { value: "other", label: "토지·상가" },
             ]}
           />
@@ -219,7 +211,7 @@ export default function BrokerageFeeCalculator() {
           <div>
             <div className="mb-1 flex items-center justify-between text-sm text-[#4E5968]">
               <span>RS 분배율(사무소 → 담당 중개사)</span>
-              <span className="font-semibold text-[#14607F]">{rsRate}%</span>
+              <span className="font-semibold text-cobalt">{rsRate}%</span>
             </div>
             <input
               type="range"
@@ -228,53 +220,72 @@ export default function BrokerageFeeCalculator() {
               step={1}
               value={rsRate}
               onChange={(e) => setRsRate(Number(e.target.value))}
-              className="w-full accent-[#14607F]"
+              className="w-full accent-cobalt"
             />
           </div>
         </div>
       )}
 
-      <div className="mt-5 rounded-xl bg-[#EAF2F7] px-4 py-3 text-sm font-medium text-[#14607F]">
-        {result.bracketLabel} · 상한요율 {(result.capRate * 100).toFixed(2)}%
-      </div>
+      <div className="mt-5">
+        <ResultCard>
+          <ResultHeadline
+            label={`${result.bracketLabel} · 상한요율 ${(result.capRate * 100).toFixed(2)}%`}
+            value={formatKRW(result.totalWithVat).replace("원", "")}
+            suffix="원"
+            subtitle="최종 지급액"
+          />
+          <ResultDivider />
+          <ResultRow label="산정 거래금액" value={formatKRW(result.dealAmount)} />
+          <ResultRow label="상한요율 기준 보수" value={formatKRW(result.capFee)} />
+          <ResultRow label={`부가세 (${(result.vatRate * 100).toFixed(0)}%)`} value={formatKRW(result.vat)} />
 
-      <div className="mt-4 space-y-1 border-t border-[#E5E8EB] pt-4 text-sm text-[#4E5968]">
-        <div className="flex justify-between">
-          <span>산정 거래금액</span>
-          <span>{formatKRW(result.dealAmount)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>상한요율 기준 보수</span>
-          <span>{formatKRW(result.capFee)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>부가세 ({(result.vatRate * 100).toFixed(0)}%)</span>
-          <span>{formatKRW(result.vat)}</span>
-        </div>
-        <div className="mt-2 flex justify-between border-t border-[#E5E8EB] pt-2 text-base font-bold text-[#16232E]">
-          <span>최종 지급액</span>
-          <span className="text-[#14607F]">{formatKRW(result.totalWithVat)}</span>
-        </div>
-      </div>
-
-      {userMode === "agent" && (
-        <div className="mt-4 space-y-1 border-t border-[#E5E8EB] pt-4 text-sm text-[#4E5968]">
-          <div className="flex justify-between">
-            <span>사무소 수령액 ({coBrokerage === "single" ? "단타 50%" : "양타 100%"})</span>
-            <span>{formatKRW(officeFee)}</span>
-          </div>
-          <div className="mt-2 flex justify-between border-t border-[#E5E8EB] pt-2 text-base font-bold text-[#16232E]">
-            <span>담당 중개사 개인 수령액 (RS {rsRate}%)</span>
-            <span className="text-[#14607F]">{formatKRW(personalFee)}</span>
-          </div>
-          <p className="pt-1 text-xs text-[#9AA5B1]">
-            * 세전(부가세 제외) 중개보수 기준 분배액이며, 실제 정산은 사무소 내부 규정에 따라 달라질
-            수 있습니다.
+          {userMode === "agent" && (
+            <ResultHighlight>
+              <ResultHighlightRow
+                label={`사무소 수령액 (${coBrokerage === "single" ? "단타 50%" : "양타 100%"})`}
+                value={formatKRW(officeFee)}
+              />
+              <ResultHighlightRow label={`담당 중개사 개인 수령액 (RS ${rsRate}%)`} value={formatKRW(personalFee)} emphasize />
+            </ResultHighlight>
+          )}
+        </ResultCard>
+        {userMode === "agent" && (
+          <p className="mt-2 text-xs leading-relaxed text-[#9AA5B1]">
+            * 세전(부가세 제외) 중개보수 기준 분배액이며, 실제 정산은 사무소 내부 규정에 따라 달라질 수
+            있습니다.
           </p>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="mt-4">
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="w-full rounded-xl bg-cobalt py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
+        >
+          {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowReceipt(true)}
+          className="w-full rounded-xl border border-cobalt py-3 text-sm font-semibold text-cobalt transition active:scale-[0.99]"
+        >
+          영수증 카드 보기
+        </button>
+      </div>
+
+      <Modal open={showReceipt} onClose={() => setShowReceipt(false)}>
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-sm font-bold text-[#16232E]">영수증 카드 미리보기</span>
+          <button
+            type="button"
+            onClick={() => setShowReceipt(false)}
+            className="text-2xl leading-none text-[#8B95A1]"
+            aria-label="닫기"
+          >
+            ×
+          </button>
+        </div>
         <ReceiptCard
           ref={receiptRef}
           title="부동산 중개보수 계산 결과"
@@ -283,17 +294,8 @@ export default function BrokerageFeeCalculator() {
           total={result.totalWithVat}
           totalLabel="최종 지급액"
         />
-      </div>
-
-      <button
-        type="button"
-        onClick={handleCopy}
-        className="mt-4 w-full rounded-xl bg-[#14607F] py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
-      >
-        {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
-      </button>
-
-      <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_복비계산_영수증.png" />
+        <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_복비계산_영수증.png" />
+      </Modal>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         본 계산 결과는 법정 상한요율을 기준으로 한 참고용 안내이며, 실제 중개보수는 개업공인중개사와
