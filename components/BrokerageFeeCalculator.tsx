@@ -10,7 +10,11 @@ import {
 } from "@/lib/calc";
 import { SegButton, WonInput } from "./ui";
 
+type UserMode = "customer" | "agent";
+type CoBrokerage = "single" | "double"; // 단타(공동중개, 50%) / 양타(단독 또는 양쪽 대리, 100%)
+
 export default function BrokerageFeeCalculator() {
+  const [userMode, setUserMode] = useState<UserMode>("customer");
   const [propertyType, setPropertyType] = useState<PropertyType>("house");
   const [dealType, setDealType] = useState<DealType>("sale");
   const [isMonthly, setIsMonthly] = useState(false);
@@ -20,6 +24,8 @@ export default function BrokerageFeeCalculator() {
   const [vatType, setVatType] = useState<VatType>("general");
   const [negotiate, setNegotiate] = useState(false);
   const [negotiatedRate, setNegotiatedRate] = useState<number>(0);
+  const [coBrokerage, setCoBrokerage] = useState<CoBrokerage>("double");
+  const [rsRate, setRsRate] = useState<number>(70);
   const [copied, setCopied] = useState(false);
 
   const result = useMemo(() => {
@@ -36,6 +42,11 @@ export default function BrokerageFeeCalculator() {
 
   const savedByNegotiation = Math.max(0, result.capFee - result.appliedFee);
 
+  // 공동중개(단타/양타) + RS 분배율 — 세전 중개보수(appliedFee) 기준으로 계산.
+  // 부가세는 사무소가 신고·납부하는 몫이라 개인 분배 대상에서 제외한다.
+  const officeFee = Math.round(result.appliedFee * (coBrokerage === "single" ? 0.5 : 1));
+  const personalFee = Math.round(officeFee * (rsRate / 100));
+
   const shareText = useMemo(() => {
     const dealLabel =
       dealType === "sale" ? "매매/교환" : isMonthly ? "월세" : "전세(임대차)";
@@ -51,9 +62,13 @@ export default function BrokerageFeeCalculator() {
       `중개보수: ${formatKRW(result.appliedFee)}`,
       `부가세(${(result.vatRate * 100).toFixed(0)}%): ${formatKRW(result.vat)}`,
       `최종 지급액: ${formatKRW(result.totalWithVat)}`,
+      userMode === "agent"
+        ? `공동중개: ${coBrokerage === "single" ? "단타 50%" : "양타 100%"} → 사무소 수령액 ${formatKRW(officeFee)}`
+        : null,
+      userMode === "agent" ? `RS 분배율 ${rsRate}% → 개인 수령액 ${formatKRW(personalFee)}` : null,
     ].filter(Boolean);
     return lines.join("\n");
-  }, [result, dealType, isMonthly, negotiate, savedByNegotiation]);
+  }, [result, dealType, isMonthly, negotiate, savedByNegotiation, userMode, coBrokerage, rsRate, officeFee, personalFee]);
 
   async function handleCopy() {
     try {
@@ -71,6 +86,17 @@ export default function BrokerageFeeCalculator() {
       <p className="mt-1 text-sm text-[#8B95A1]">
         법정 상한요율 기준 부동산 중개보수를 계산해드립니다.
       </p>
+
+      <div className="mt-4">
+        <SegButton
+          value={userMode}
+          onChange={setUserMode}
+          options={[
+            { value: "customer", label: "일반고객용" },
+            { value: "agent", label: "공인중개사 실무용" },
+          ]}
+        />
+      </div>
 
       <div className="mt-5 space-y-4">
         <div>
@@ -149,6 +175,42 @@ export default function BrokerageFeeCalculator() {
         </div>
       </div>
 
+      {userMode === "agent" && (
+        <div className="mt-5 space-y-4 border-t border-[#E5E8EB] pt-4">
+          <div>
+            <span className="mb-2 block text-sm font-medium text-[#4E5968]">공동중개</span>
+            <SegButton
+              value={coBrokerage}
+              onChange={setCoBrokerage}
+              options={[
+                { value: "single", label: "단타 50%" },
+                { value: "double", label: "양타 100%" },
+              ]}
+            />
+            <p className="mt-1 text-xs text-[#8B95A1]">
+              * 단타 = 다른 사무소와 공동중개(내 사무소는 중개보수의 절반만 수령) / 양타 = 단독중개
+              또는 양쪽 모두 대리(중개보수 전액 수령)
+            </p>
+          </div>
+
+          <div>
+            <div className="mb-1 flex items-center justify-between text-sm text-[#4E5968]">
+              <span>RS 분배율(사무소 → 담당 중개사)</span>
+              <span className="font-semibold text-[#14607F]">{rsRate}%</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={rsRate}
+              onChange={(e) => setRsRate(Number(e.target.value))}
+              className="w-full accent-[#14607F]"
+            />
+          </div>
+        </div>
+      )}
+
       <label className="mt-5 flex items-center justify-between border-t border-[#E5E8EB] pt-4">
         <span className="text-sm font-semibold">협의(네고) 요율로 계산하기</span>
         <input
@@ -206,6 +268,23 @@ export default function BrokerageFeeCalculator() {
           <span className="text-[#14607F]">{formatKRW(result.totalWithVat)}</span>
         </div>
       </div>
+
+      {userMode === "agent" && (
+        <div className="mt-4 space-y-1 border-t border-[#E5E8EB] pt-4 text-sm text-[#4E5968]">
+          <div className="flex justify-between">
+            <span>사무소 수령액 ({coBrokerage === "single" ? "단타 50%" : "양타 100%"})</span>
+            <span>{formatKRW(officeFee)}</span>
+          </div>
+          <div className="mt-2 flex justify-between border-t border-[#E5E8EB] pt-2 text-base font-bold text-[#16232E]">
+            <span>담당 중개사 개인 수령액 (RS {rsRate}%)</span>
+            <span className="text-[#14607F]">{formatKRW(personalFee)}</span>
+          </div>
+          <p className="pt-1 text-xs text-[#9AA5B1]">
+            * 세전(부가세 제외) 중개보수 기준 분배액이며, 실제 정산은 사무소 내부 규정에 따라 달라질
+            수 있습니다.
+          </p>
+        </div>
+      )}
 
       <button
         type="button"
