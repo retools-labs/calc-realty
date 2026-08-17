@@ -30,8 +30,8 @@
 "리얼티북 — 토스 인앱 부동산 계산 툴킷 & 마케팅 마스터 플랜"
 (https://docs.google.com/document/d/1MVF-Y1BIrXlH-nG0aEJkO0aus4eIaL_EaGj6lLFh4xg/edit)
 — 8개 섹션(개요, 퍼널설계, 5개 계산기 스펙, UI/UX가이드, 기술스택, 마케팅, SNS전략,
-무인 자동화 SNS 봇). 계산기 5개 중 3.1(복비 계산기)과 3.3(일할계산기)만 구현 완료, 나머지
-3.2/3.4/3.5 및 디자인 리스타일·SNS 자동화 봇은 전부 백로그(README "6. 다음 단계 백로그" 참고).
+무인 자동화 SNS 봇). **계산기 5개(3.1~3.5) 전부 구현·배포 완료(2026-08-17 부산 세션).** 남은 건
+4장 디자인 리스타일, 앱인토스 SDK 연동, SNS 자동화 봇뿐(README "6. 다음 단계 백로그" 참고).
 
 ## 지금 살아있는 배포 상태
 
@@ -53,18 +53,23 @@ apple-realty-settlement와 동일:
 
 ## 완료된 작업
 
-상세 내역은 README.md "7. 2026-08-17 작업 내역" 섹션 참고. 요약:
+상세 내역은 README.md "7. 2026-08-17 작업 내역(울산)" / "8. 2026-08-17 작업 내역(부산)" 섹션 참고.
+요약:
 
 - 3.1 법정 중개보수 상한 계산기 (매매/임대차/오피스텔/토지상가, 부가세 3종, 협의요율 슬라이더,
   결과 텍스트 복사) — 최초 구현, 마스터플랜 요율표와 100% 일치 확인됨
-- 3.3 잔금일 월세·관리비 일할계산기 (2026-08-17 신규) — `components/ProrateCalculator.tsx`,
-  `lib/prorate.ts`. 기존 복비 계산기와 탭으로 전환하는 구조로 `app/page.tsx` 재구성,
-  공용 UI는 `components/ui.tsx`로 추출
+- 3.3 잔금일 월세·관리비 일할계산기 — `components/ProrateCalculator.tsx`, `lib/prorate.ts`
+- 3.2 이사 총 부대비용(영수증) 계산기 — `components/MovingCostCalculator.tsx`, `lib/movingCost.ts`
+- 일반고객 ⇄ 공인중개사 실무 모드 스위치 + 공동중개(단타/양타) + RS 분배율 — `BrokerageFeeCalculator.tsx`
+- 3.4 상가 임대수익률(Cap Rate)·권리금 계산기 — `components/CapRateCalculator.tsx`, `lib/capRate.ts`
+- 3.5 카톡 스마트 영수증 카드 이미지 생성기(html2canvas) — `components/ReceiptCard.tsx`,
+  `components/ShareReceiptButton.tsx`, 3.1/3.2에 공통 적용
+- 공용 UI는 `components/ui.tsx`(`WonInput`/`SegButton`)로 추출, `app/page.tsx`는 4개 탭 셸
 
 ## 아직 안 한 백로그
 
-README.md "6. 다음 단계 백로그" 섹션 참고 (3.2/3.4/3.5 계산기, 디자인 리스타일, 앱인토스 SDK
-연동, SNS 자동화 봇 등). 이 문서에 중복 기재하지 않음 — README가 최신 소스.
+README.md "6. 다음 단계 백로그" 섹션 참고 (디자인 리스타일, 앱인토스 SDK 연동, SNS 자동화 봇 등).
+이 문서에 중복 기재하지 않음 — README가 최신 소스.
 
 ## 자세한 내용
 
