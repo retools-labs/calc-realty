@@ -4,6 +4,7 @@ import { useState } from "react";
 import BrokerageFeeCalculator from "@/components/BrokerageFeeCalculator";
 import ProrateCalculator from "@/components/ProrateCalculator";
 import MovingCostCalculator from "@/components/MovingCostCalculator";
+import CapRateCalculator from "@/components/CapRateCalculator";
 
 const PARTNER_URL = "https://apple-realty.vercel.app/partner";
 
@@ -198,12 +199,13 @@ function PartnerBanner() {
   );
 }
 
-type CalcTab = "fee" | "prorate" | "movingCost";
+type CalcTab = "fee" | "prorate" | "movingCost" | "capRate";
 
 const TABS: { value: CalcTab; label: string }[] = [
   { value: "fee", label: "복비 계산기" },
   { value: "prorate", label: "일할 계산기" },
   { value: "movingCost", label: "부대비용" },
+  { value: "capRate", label: "상가 수익률" },
 ];
 
 export default function Home() {
@@ -226,13 +228,13 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-2 rounded-2xl bg-white p-1.5 shadow-sm">
+        <div className="mt-3 grid grid-cols-2 gap-1.5 rounded-2xl bg-white p-1.5 shadow-sm sm:grid-cols-4">
           {TABS.map((t) => (
             <button
               key={t.value}
               type="button"
               onClick={() => setTab(t.value)}
-              className={`rounded-xl py-2.5 text-sm font-semibold transition ${
+              className={`rounded-xl px-1 py-2.5 text-xs font-semibold transition sm:text-sm ${
                 tab === t.value ? "bg-[#14607F] text-white" : "text-[#4E5968]"
               }`}
             >
@@ -245,6 +247,7 @@ export default function Home() {
           {tab === "fee" && <BrokerageFeeCalculator />}
           {tab === "prorate" && <ProrateCalculator />}
           {tab === "movingCost" && <MovingCostCalculator />}
+          {tab === "capRate" && <CapRateCalculator />}
         </div>
       </div>
 
