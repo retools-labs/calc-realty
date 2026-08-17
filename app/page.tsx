@@ -3,6 +3,7 @@
 import { useState } from "react";
 import BrokerageFeeCalculator from "@/components/BrokerageFeeCalculator";
 import ProrateCalculator from "@/components/ProrateCalculator";
+import MovingCostCalculator from "@/components/MovingCostCalculator";
 
 const PARTNER_URL = "https://apple-realty.vercel.app/partner";
 
@@ -197,11 +198,12 @@ function PartnerBanner() {
   );
 }
 
-type CalcTab = "fee" | "prorate";
+type CalcTab = "fee" | "prorate" | "movingCost";
 
 const TABS: { value: CalcTab; label: string }[] = [
   { value: "fee", label: "복비 계산기" },
   { value: "prorate", label: "일할 계산기" },
+  { value: "movingCost", label: "부대비용" },
 ];
 
 export default function Home() {
@@ -224,7 +226,7 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl bg-white p-1.5 shadow-sm">
+        <div className="mt-3 grid grid-cols-3 gap-2 rounded-2xl bg-white p-1.5 shadow-sm">
           {TABS.map((t) => (
             <button
               key={t.value}
@@ -240,7 +242,9 @@ export default function Home() {
         </div>
 
         <div className="mt-3">
-          {tab === "fee" ? <BrokerageFeeCalculator /> : <ProrateCalculator />}
+          {tab === "fee" && <BrokerageFeeCalculator />}
+          {tab === "prorate" && <ProrateCalculator />}
+          {tab === "movingCost" && <MovingCostCalculator />}
         </div>
       </div>
 
