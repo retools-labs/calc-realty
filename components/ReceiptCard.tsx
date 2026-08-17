@@ -43,15 +43,27 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
           <span className="text-[#14607F]">{formatKRW(total)}</span>
         </div>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <div className="flex items-center justify-between gap-3 rounded-b-[11px] bg-[#0A2540] px-4 py-3.5">
-        <span className="flex items-center gap-1.5">
-          <img src="/icons/rb-mark-white.png" alt="" className="h-4 w-4 shrink-0" />
-          <span className="shrink-0 whitespace-nowrap text-[11px] font-bold text-white">리얼티북</span>
-          <span className="shrink-0 text-[10px] text-[#5b7185]">|</span>
-          <span className="whitespace-nowrap text-[10.5px] text-[#a9c2d6]">공인중개사 스마트 정산장부</span>
+      {/* 하단 CTA: Claude Design 목업(Receipt CTA.dc.html)의 "2줄 계층 분리형" 스펙을 그대로 이식.
+          1줄 = 브랜드+혜택(정보 전달), 2줄 = 단 하나의 명확한 검색 행동(CTA)으로 역할을 분리한다. */}
+      <div
+        className="flex flex-col items-center gap-3 overflow-hidden rounded-b-[11px] px-[22px] py-[17px]"
+        style={{ background: "linear-gradient(120deg, #08203a 0%, #0d3b57 55%, #15719b 100%)" }}
+      >
+        <div className="flex flex-wrap items-center justify-center gap-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/rb-mark-white.png" alt="" className="h-[23px] w-auto shrink-0" />
+          <span className="whitespace-nowrap text-base font-extrabold tracking-[-0.2px] text-white">리얼티북</span>
+          <span className="h-[15px] w-px shrink-0 bg-white/[0.28]" />
+          <span className="whitespace-nowrap text-[15px] font-bold tracking-[-0.2px] text-[#C8E9F2]">
+            공인중개사 1초 정산장부
+          </span>
+          <span className="whitespace-nowrap text-sm font-extrabold tracking-[-0.2px] text-[#F5C433]">
+            (2인 평생 무료)
+          </span>
+        </div>
+        <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#F5C433] px-5 py-[11px] text-[14.5px] font-extrabold leading-none tracking-[-0.2px] text-[#0A2540] shadow-[0_5px_14px_rgba(8,32,68,0.32)]">
+          🔍 네이버에서 &apos;리얼티북&apos;을 검색하세요
         </span>
-        <span className="shrink-0 whitespace-nowrap text-[10.5px] font-semibold text-[#f5c433]">retools.kr</span>
       </div>
     </div>
   );
