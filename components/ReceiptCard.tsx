@@ -43,32 +43,16 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
           <span className="text-[#14607F]">{formatKRW(total)}</span>
         </div>
       </div>
-      {/* 하단 CTA: Claude Design 목업(Receipt CTA.dc.html)의 "2줄 계층 분리형" 스펙을 그대로 이식.
-          1줄 = 브랜드+혜택(정보 전달), 2줄 = 단 하나의 명확한 검색 행동(CTA)으로 역할을 분리한다. */}
-      <div
-        className="flex flex-col items-center gap-3 overflow-hidden rounded-b-[11px] px-[22px] py-[17px]"
-        style={{ background: "linear-gradient(120deg, #08203a 0%, #0d3b57 55%, #15719b 100%)" }}
-      >
-        {/* 카드 폭이 730px 목업보다 훨씬 좁은 모바일에서는 5개 인라인 요소가 flex-wrap으로
-            제각각 다른 지점에서 줄바꿈되어 정렬이 흐트러졌다. 브랜드 줄/혜택 줄을 처음부터
-            분리된 두 줄로 고정해 카드 폭과 무관하게 항상 같은 모양이 되도록 한다. */}
-        <div className="flex flex-col items-center gap-1.5">
-          <span className="flex items-center gap-1.5">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/rb-mark-white.png" alt="" className="h-[23px] w-auto shrink-0" />
-            <span className="whitespace-nowrap text-base font-extrabold tracking-[-0.2px] text-white">
-              리얼티북
-            </span>
-          </span>
-          <span className="text-center text-[13px] font-bold leading-snug tracking-[-0.2px] text-[#C8E9F2]">
-            공인중개사 1초 정산장부{" "}
-            <span className="font-extrabold text-[#F5C433]">· 2인 평생 무료</span>
-          </span>
-        </div>
-        <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#F5C433] px-5 py-[11px] text-[14.5px] font-extrabold leading-none tracking-[-0.2px] text-[#0A2540] shadow-[0_5px_14px_rgba(8,32,68,0.32)]">
-          🔍 네이버에서 &apos;리얼티북&apos;을 검색하세요
-        </span>
-      </div>
+      {/* 하단 CTA: 텍스트를 동적으로 조립하면 카드 폭(특히 모바일)에 따라 flex-wrap이
+          제각각 다른 지점에서 줄바꿈되어 정렬이 흐트러지는 문제가 있었다. 대신 Claude
+          Design 목업(Receipt CTA.dc.html)에서 그대로 내보낸 이미지를 폭에 맞춰 스케일만
+          하는 방식으로 바꿔, 카드 폭과 무관하게 항상 디자인과 동일하게 보이도록 했다. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/receipt-cta.png"
+        alt="리얼티북 | 공인중개사 1초 정산장부 (2인 평생 무료) — 네이버에서 '리얼티북'을 검색하세요"
+        className="block aspect-[1548/212] w-full rounded-b-[11px] object-cover"
+      />
     </div>
   );
 });
