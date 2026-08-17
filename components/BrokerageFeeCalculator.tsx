@@ -50,9 +50,22 @@ export default function BrokerageFeeCalculator() {
   const officeFee = Math.round(result.appliedFee * (coBrokerage === "single" ? 0.5 : 1));
   const personalFee = Math.round(officeFee * (rsRate / 100));
 
+  const propertyLabel =
+    propertyType === "house"
+      ? "주택"
+      : propertyType === "officetelSmall"
+        ? "오피스텔(85㎡↓)"
+        : propertyType === "officetelOther"
+          ? "오피스텔"
+          : "토지·상가";
+  const dealLabel = dealType === "sale" ? "매매/교환" : isMonthly ? "월세" : "전세(임대차)";
+  const receiptSubtitle = useMemo(() => {
+    const now = new Date();
+    const ym = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}`;
+    return `${propertyLabel} ${dealLabel} · ${formatKRW(result.dealAmount)} · ${ym} 기준`;
+  }, [propertyLabel, dealLabel, result.dealAmount]);
+
   const shareText = useMemo(() => {
-    const dealLabel =
-      dealType === "sale" ? "매매/교환" : isMonthly ? "월세" : "전세(임대차)";
     const lines = [
       `[부동산 중개보수 계산 결과]`,
       `매물유형: ${result.bracketLabel}`,
@@ -306,7 +319,14 @@ export default function BrokerageFeeCalculator() {
       )}
 
       <div className="mt-4">
-        <ReceiptCard ref={receiptRef} title="부동산 중개보수 계산 결과" lines={receiptLines} total={result.totalWithVat} totalLabel="최종 지급액" />
+        <ReceiptCard
+          ref={receiptRef}
+          title="부동산 중개보수 계산 결과"
+          subtitle={receiptSubtitle}
+          lines={receiptLines}
+          total={result.totalWithVat}
+          totalLabel="최종 지급액"
+        />
       </div>
 
       <button

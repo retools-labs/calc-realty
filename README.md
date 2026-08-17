@@ -201,3 +201,9 @@ npm run verify:calc
   단계에서 깨지는 경우가 있음 — 이건 모바일 공유시트를 위한 API라 데스크톱에서 신뢰하기 어려움.
   수정: `navigator.maxTouchPoints > 0`(터치 기기)일 때만 공유 시도, PC 등 그 외 환경은 바로
   다운로드로 처리. 공유 시도 중 오류(취소 제외) 시에도 다운로드로 자동 폴백하도록 보강.
+- **영수증 카드(`ReceiptCard.tsx`) 디자인 개선** — PM 제안 3안 중 "2안(바이럴 후킹 CTA 바형)"
+  채택. 하단의 밋밋한 회색 영문 텍스트를 Core Navy(`#0A2540`) 풀블리드 바로 교체하고
+  `rb-mark-white.png` 심볼 + "리얼티북 | 공인중개사 1초 정산장부 (2인 평생 무료) · retools.kr →"
+  카피를 넣어 카카오톡 공유 시 바이럴 유입 CTA 역할을 하도록 함. 상단에는 신규 `subtitle` prop을
+  추가해 "[매물유형·거래유형 · 금액 · YYYY.MM 기준]" 형태의 기준정보 태그를 노출 —
+  `BrokerageFeeCalculator`/`MovingCostCalculator` 양쪽에 적용.

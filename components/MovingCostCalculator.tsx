@@ -84,6 +84,14 @@ export default function MovingCostCalculator() {
   const lines = dealKind === "sale" ? saleResult.lines : leaseResult.lines;
   const total = dealKind === "sale" ? saleResult.total : leaseResult.total;
 
+  const receiptSubtitle = useMemo(() => {
+    const now = new Date();
+    const ym = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const dealLabel = dealKind === "sale" ? "매매(내 집 마련)" : "전월세(이사)";
+    const amount = dealKind === "sale" ? price : deposit;
+    return `${dealLabel} · ${formatKRW(amount)} · ${ym} 기준`;
+  }, [dealKind, price, deposit]);
+
   const shareText = useMemo(() => {
     const header = dealKind === "sale" ? "[부동산 취득 총 필요자금 영수증]" : "[전월세 입주 총 필요자금 영수증]";
     const body = lines.map((l) => `${l.label}: ${formatKRW(l.amount)}`);
@@ -224,6 +232,7 @@ export default function MovingCostCalculator() {
         <ReceiptCard
           ref={receiptRef}
           title={dealKind === "sale" ? "부동산 취득 총 필요자금 영수증" : "전월세 입주 총 필요자금 영수증"}
+          subtitle={receiptSubtitle}
           lines={lines}
           total={total}
         />

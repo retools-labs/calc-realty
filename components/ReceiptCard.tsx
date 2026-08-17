@@ -10,6 +10,7 @@ export interface ReceiptLine {
 
 interface Props {
   title: string;
+  subtitle?: string; // 상단 기준정보 태그. 예: "주택 매매 · 1억원 · 2026.08 기준"
   lines: ReceiptLine[];
   total: number;
   totalLabel?: string;
@@ -19,26 +20,38 @@ interface Props {
 // ShareReceiptButton과 짝을 이뤄, 이 카드를 그대로 이미지로 캡처해 다운로드/공유한다.
 // forwardRef로 감싼 이유는 html2canvas가 캡처할 실제 DOM 노드가 필요하기 때문.
 const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
-  { title, lines, total, totalLabel = "합계" },
+  { title, subtitle, lines, total, totalLabel = "합계" },
   ref
 ) {
   return (
-    <div ref={ref} className="rounded-xl border border-dashed border-[#C7D2DB] bg-white p-4">
-      <div className="text-center text-sm font-bold text-[#16232E]">{title}</div>
-      <div className="mt-3 space-y-1.5 border-t border-dashed border-[#C7D2DB] pt-3">
-        {lines.map((l) => (
-          <div key={l.label} className="flex justify-between text-sm text-[#4E5968]">
-            <span>{l.label}</span>
-            <span>{formatKRW(l.amount)}</span>
-          </div>
-        ))}
+    <div ref={ref} className="overflow-hidden rounded-xl border border-dashed border-[#C7D2DB] bg-white">
+      <div className="p-4">
+        <div className="text-center text-sm font-bold text-[#16232E]">{title}</div>
+        {subtitle && (
+          <div className="mt-1 text-center text-[11px] text-[#9AA5B1]">{subtitle}</div>
+        )}
+        <div className="mt-3 space-y-1.5 border-t border-dashed border-[#C7D2DB] pt-3">
+          {lines.map((l) => (
+            <div key={l.label} className="flex justify-between text-sm text-[#4E5968]">
+              <span>{l.label}</span>
+              <span>{formatKRW(l.amount)}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 flex justify-between border-t border-dashed border-[#C7D2DB] pt-3 text-base font-bold text-[#16232E]">
+          <span>{totalLabel}</span>
+          <span className="text-[#14607F]">{formatKRW(total)}</span>
+        </div>
       </div>
-      <div className="mt-3 flex justify-between border-t border-dashed border-[#C7D2DB] pt-3 text-base font-bold text-[#16232E]">
-        <span>{totalLabel}</span>
-        <span className="text-[#14607F]">{formatKRW(total)}</span>
-      </div>
-      <div className="mt-4 border-t border-dashed border-[#C7D2DB] pt-2 text-center text-[10px] tracking-wide text-[#B0B8C1]">
-        RealtyTools by Retools · Powered by RealtyBook
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="flex items-center gap-2 bg-[#0A2540] px-4 py-2.5">
+        <img src="/icons/rb-mark-white.png" alt="" className="h-4 w-4 shrink-0" />
+        <span className="shrink-0 text-[11px] font-bold text-white">리얼티북</span>
+        <span className="shrink-0 text-[10px] text-[#5b7185]">|</span>
+        <span className="min-w-0 flex-1 truncate text-[10.5px] text-[#a9c2d6]">
+          공인중개사 1초 정산장부 (2인 평생 무료)
+        </span>
+        <span className="shrink-0 text-[10.5px] font-semibold text-[#f5c433]">retools.kr →</span>
       </div>
     </div>
   );
