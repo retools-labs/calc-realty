@@ -1,36 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { calcBrokerageFee, formatKRW } from "@/lib/calc";
-import {
-  calcLeaseMovingCost,
-  calcSaleMovingCost,
-  type HouseCount,
-  type MovingCostLine,
-} from "@/lib/movingCost";
+import { calcLeaseMovingCost, calcSaleMovingCost, type HouseCount } from "@/lib/movingCost";
 import { SegButton, WonInput } from "./ui";
+import ReceiptCard from "./ReceiptCard";
+import ShareReceiptButton from "./ShareReceiptButton";
 
 type DealKind = "sale" | "lease";
-
-function ReceiptCard({ title, lines, total }: { title: string; lines: MovingCostLine[]; total: number }) {
-  return (
-    <div className="mt-4 rounded-xl border border-dashed border-[#C7D2DB] bg-[#FBFCFD] p-4">
-      <div className="text-center text-sm font-bold text-[#16232E]">{title}</div>
-      <div className="mt-3 space-y-1.5 border-t border-dashed border-[#C7D2DB] pt-3">
-        {lines.map((l) => (
-          <div key={l.label} className="flex justify-between text-sm text-[#4E5968]">
-            <span>{l.label}</span>
-            <span>{formatKRW(l.amount)}</span>
-          </div>
-        ))}
-      </div>
-      <div className="mt-3 flex justify-between border-t border-dashed border-[#C7D2DB] pt-3 text-base font-bold text-[#16232E]">
-        <span>합계</span>
-        <span className="text-[#14607F]">{formatKRW(total)}</span>
-      </div>
-    </div>
-  );
-}
 
 export default function MovingCostCalculator() {
   const [dealKind, setDealKind] = useState<DealKind>("sale");
@@ -51,6 +28,7 @@ export default function MovingCostCalculator() {
   const [guaranteeRatePercent, setGuaranteeRatePercent] = useState(0.128);
   const [movingFee, setMovingFee] = useState(800_000);
   const [cleaningFee, setCleaningFee] = useState(150_000);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   const saleBrokerage = useMemo(
     () =>
@@ -242,11 +220,14 @@ export default function MovingCostCalculator() {
         )}
       </div>
 
-      <ReceiptCard
-        title={dealKind === "sale" ? "부동산 취득 총 필요자금 영수증" : "전월세 입주 총 필요자금 영수증"}
-        lines={lines}
-        total={total}
-      />
+      <div className="mt-4">
+        <ReceiptCard
+          ref={receiptRef}
+          title={dealKind === "sale" ? "부동산 취득 총 필요자금 영수증" : "전월세 입주 총 필요자금 영수증"}
+          lines={lines}
+          total={total}
+        />
+      </div>
 
       <button
         type="button"
@@ -255,6 +236,8 @@ export default function MovingCostCalculator() {
       >
         {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
       </button>
+
+      <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_이사비용_영수증.png" />
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         취득세는 다주택·조정대상지역 여부에 따라 세율이 자주 바뀌고, 법무사수수료·국민주택채권

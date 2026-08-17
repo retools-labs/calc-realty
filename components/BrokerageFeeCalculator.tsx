@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   calcBrokerageFee,
   formatKRW,
@@ -9,6 +9,8 @@ import {
   type VatType,
 } from "@/lib/calc";
 import { SegButton, WonInput } from "./ui";
+import ReceiptCard from "./ReceiptCard";
+import ShareReceiptButton from "./ShareReceiptButton";
 
 type UserMode = "customer" | "agent";
 type CoBrokerage = "single" | "double"; // 단타(공동중개, 50%) / 양타(단독 또는 양쪽 대리, 100%)
@@ -27,6 +29,7 @@ export default function BrokerageFeeCalculator() {
   const [coBrokerage, setCoBrokerage] = useState<CoBrokerage>("double");
   const [rsRate, setRsRate] = useState<number>(70);
   const [copied, setCopied] = useState(false);
+  const receiptRef = useRef<HTMLDivElement>(null);
 
   const result = useMemo(() => {
     return calcBrokerageFee({
@@ -69,6 +72,22 @@ export default function BrokerageFeeCalculator() {
     ].filter(Boolean);
     return lines.join("\n");
   }, [result, dealType, isMonthly, negotiate, savedByNegotiation, userMode, coBrokerage, rsRate, officeFee, personalFee]);
+
+  const receiptLines = useMemo(() => {
+    const base = [
+      { label: "산정 거래금액", amount: result.dealAmount },
+      { label: "상한요율 기준 보수", amount: result.capFee },
+      ...(negotiate ? [{ label: "네고로 절약된 금액", amount: -savedByNegotiation }] : []),
+      { label: `부가세 (${(result.vatRate * 100).toFixed(0)}%)`, amount: result.vat },
+    ];
+    if (userMode === "agent") {
+      base.push(
+        { label: `사무소 수령액 (${coBrokerage === "single" ? "단타 50%" : "양타 100%"})`, amount: officeFee },
+        { label: `개인 수령액 (RS ${rsRate}%)`, amount: personalFee }
+      );
+    }
+    return base;
+  }, [result, negotiate, savedByNegotiation, userMode, coBrokerage, rsRate, officeFee, personalFee]);
 
   async function handleCopy() {
     try {
@@ -286,6 +305,10 @@ export default function BrokerageFeeCalculator() {
         </div>
       )}
 
+      <div className="mt-4">
+        <ReceiptCard ref={receiptRef} title="부동산 중개보수 계산 결과" lines={receiptLines} total={result.totalWithVat} totalLabel="최종 지급액" />
+      </div>
+
       <button
         type="button"
         onClick={handleCopy}
@@ -293,6 +316,8 @@ export default function BrokerageFeeCalculator() {
       >
         {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
       </button>
+
+      <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_복비계산_영수증.png" />
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         본 계산 결과는 법정 상한요율을 기준으로 한 참고용 안내이며, 실제 중개보수는 개업공인중개사와
