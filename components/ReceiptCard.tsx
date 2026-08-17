@@ -47,11 +47,14 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
           제각각 다른 지점에서 줄바꿈되어 정렬이 흐트러지는 문제가 있었다. 대신 Claude
           Design 목업(Receipt CTA.dc.html)에서 그대로 내보낸 이미지를 폭에 맞춰 스케일만
           하는 방식으로 바꿔, 카드 폭과 무관하게 항상 디자인과 동일하게 보이도록 했다. */}
+      {/* v2: 2줄(가로로 넓은) 배너는 모바일 폭으로 축소되면 글자 높이가 너무 작아져
+          뭉개져 보였다. 클로드 디자인에서 3줄 세로형으로 다시 뽑아 줄당 확보되는
+          세로 픽셀을 늘려 같은 카드 폭에서도 훨씬 선명하게 보이도록 했다. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/images/receipt-cta.png"
+        src="/images/receipt-cta-v2.png"
         alt="리얼티북 | 공인중개사 1초 정산장부 (2인 평생 무료) — 네이버에서 '리얼티북'을 검색하세요"
-        className="block aspect-[1548/212] w-full rounded-b-[11px] object-cover"
+        className="block aspect-[73/23] w-full rounded-b-[11px] object-cover"
       />
     </div>
   );
