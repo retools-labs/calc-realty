@@ -202,9 +202,12 @@ function PartnerBanner() {
 type CalcTab = "fee" | "prorate" | "movingCost" | "capRate";
 type Mode = "customer" | "agent";
 
-const TABS: { value: CalcTab; label: string; icon: string; agentOnly?: boolean }[] = [
+// PM 권고: 4개 탭은 모드와 무관하게 전부 개방. 상단 [일반고객용]/[공인중개사 실무용]
+// 스위치는 중개사 어필용으로 유지하되, "실무용"을 켰을 때는 복비 탭 안에서만 추가 필드
+// (공동중개 단타/양타, 정산비율 슬라이더 → 내 실수령액)가 열리는 방식으로 남긴다.
+const TABS: { value: CalcTab; label: string; icon: string }[] = [
   { value: "fee", label: "복비 계산기", icon: "💰" },
-  { value: "prorate", label: "일할 계산기", icon: "📅", agentOnly: true },
+  { value: "prorate", label: "일할 계산기", icon: "📅" },
   { value: "movingCost", label: "부대비용", icon: "🏠" },
   { value: "capRate", label: "상가 수익률", icon: "🏢" },
 ];
@@ -212,9 +215,6 @@ const TABS: { value: CalcTab; label: string; icon: string; agentOnly?: boolean }
 export default function Home() {
   const [tab, setTab] = useState<CalcTab>("fee");
   const [mode, setMode] = useState<Mode>("customer");
-
-  const activeTabInfo = TABS.find((t) => t.value === tab)!;
-  const locked = mode === "customer" && activeTabInfo.agentOnly;
 
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
@@ -266,37 +266,15 @@ export default function Home() {
             >
               <span className="text-lg leading-none">{t.icon}</span>
               <span className="leading-tight">{t.label}</span>
-              {t.agentOnly && mode === "customer" && (
-                <span className={`text-[10px] ${tab === t.value ? "text-[#7FA3C7]" : "text-[#B0B8C1]"}`}>🔒</span>
-              )}
             </button>
           ))}
         </div>
 
         <div className="mt-3">
-          {locked ? (
-            <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
-              <div className="text-3xl">🔒</div>
-              <p className="mt-3 text-base font-bold text-[#16232E]">중개사 실무용 기능입니다</p>
-              <p className="mt-1.5 text-sm text-[#8B95A1]">
-                {activeTabInfo.label}은(는) 공인중개사 실무용 모드에서 이용할 수 있어요.
-              </p>
-              <button
-                type="button"
-                onClick={() => setMode("agent")}
-                className="mt-5 w-full rounded-xl bg-cobalt py-3 text-sm font-semibold text-white transition active:scale-[0.99]"
-              >
-                실무용 모드로 전환
-              </button>
-            </div>
-          ) : (
-            <>
-              {tab === "fee" && <BrokerageFeeCalculator mode={mode} />}
-              {tab === "prorate" && <ProrateCalculator mode={mode} />}
-              {tab === "movingCost" && <MovingCostCalculator />}
-              {tab === "capRate" && <CapRateCalculator />}
-            </>
-          )}
+          {tab === "fee" && <BrokerageFeeCalculator mode={mode} />}
+          {tab === "prorate" && <ProrateCalculator mode={mode} />}
+          {tab === "movingCost" && <MovingCostCalculator />}
+          {tab === "capRate" && <CapRateCalculator />}
         </div>
       </div>
 
