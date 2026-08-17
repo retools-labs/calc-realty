@@ -56,8 +56,8 @@ apple-realty-settlement와 동일:
 
 ## 완료된 작업
 
-상세 내역은 README.md "7. 2026-08-17 작업 내역(울산)" / "8. 2026-08-17 작업 내역(부산)" 섹션 참고.
-요약:
+상세 내역은 README.md "7. 2026-08-17 작업 내역(울산)" / "8~10. 2026-08-17 작업 내역(부산)"
+섹션 참고. 요약:
 
 - 3.1 법정 중개보수 상한 계산기 (매매/임대차/오피스텔/토지상가, 부가세 3종, 협의요율 슬라이더,
   결과 텍스트 복사) — 최초 구현, 마스터플랜 요율표와 100% 일치 확인됨
@@ -68,6 +68,9 @@ apple-realty-settlement와 동일:
 - 3.5 카톡 스마트 영수증 카드 이미지 생성기(html2canvas) — `components/ReceiptCard.tsx`,
   `components/ShareReceiptButton.tsx`, 3.1/3.2에 공통 적용
 - 공용 UI는 `components/ui.tsx`(`WonInput`/`SegButton`)로 추출, `app/page.tsx`는 4개 탭 셸
+- 영수증 카드 하단 CTA는 텍스트 조립이 아니라 **Claude Design에서 내보낸 정적 PNG
+  이미지**(`public/images/receipt-cta-v2.png`, 3줄 세로형)를 `aspect-[73/23] w-full`로 스케일링
+  — 모바일 카드 폭에서도 항상 디자인 그대로, 줄바꿈/뭉개짐 없이 보임 (README "10." 참고)
 
 ## 아직 안 한 백로그
 
