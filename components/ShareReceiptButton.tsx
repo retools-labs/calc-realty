@@ -31,9 +31,15 @@ export default function ShareReceiptButton({ targetRef, fileName = "리얼티북
     setError(null);
     try {
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(targetRef.current, {
+      const node = targetRef.current;
+      // scrollHeight를 명시적으로 지정하지 않으면 html2canvas가 카드 하단 여백/텍스트를
+      // 1~2px 짧게 계산해 잘라내는 경우가 있었다(특히 한글 받침이 있는 텍스트에서 두드러짐).
+      // windowHeight/height를 실제 콘텐츠 높이(scrollHeight)로 못 박아 여유 있게 캡처한다.
+      const canvas = await html2canvas(node, {
         backgroundColor: "#ffffff",
         scale: 2,
+        height: node.scrollHeight,
+        windowHeight: node.scrollHeight,
       });
       const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("이미지 생성 실패");

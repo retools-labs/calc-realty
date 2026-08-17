@@ -24,7 +24,7 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
   ref
 ) {
   return (
-    <div ref={ref} className="overflow-hidden rounded-xl border border-dashed border-[#C7D2DB] bg-white">
+    <div ref={ref} className="rounded-xl border border-dashed border-[#C7D2DB] bg-white">
       <div className="p-4">
         <div className="text-center text-sm font-bold text-[#16232E]">{title}</div>
         {subtitle && (
@@ -44,7 +44,7 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
         </div>
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <div className="flex items-start justify-between gap-3 bg-[#0A2540] px-4 pb-3.5 pt-3">
+      <div className="flex items-start justify-between gap-3 rounded-b-[11px] bg-[#0A2540] px-4 pb-4 pt-3">
         <span className="flex min-w-0 items-start gap-1.5">
           <img src="/icons/rb-mark-white.png" alt="" className="mt-0.5 h-4 w-4 shrink-0" />
           <span className="shrink-0 text-[11px] font-bold leading-normal text-white">리얼티북</span>
