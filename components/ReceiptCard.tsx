@@ -44,14 +44,14 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
         </div>
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <div className="flex items-center gap-2 bg-[#0A2540] px-4 py-2.5">
-        <img src="/icons/rb-mark-white.png" alt="" className="h-4 w-4 shrink-0" />
-        <span className="shrink-0 text-[11px] font-bold text-white">리얼티북</span>
-        <span className="shrink-0 text-[10px] text-[#5b7185]">|</span>
-        <span className="min-w-0 flex-1 truncate text-[10.5px] text-[#a9c2d6]">
-          공인중개사 1초 정산장부 (2인 평생 무료)
+      <div className="flex items-center justify-between gap-3 bg-[#0A2540] px-4 py-3 leading-relaxed">
+        <span className="flex min-w-0 items-center gap-1.5">
+          <img src="/icons/rb-mark-white.png" alt="" className="h-4 w-4 shrink-0" />
+          <span className="shrink-0 text-[11px] font-bold text-white">리얼티북</span>
+          <span className="shrink-0 text-[10px] text-[#5b7185]">|</span>
+          <span className="truncate text-[10.5px] text-[#a9c2d6]">공인중개사 스마트 정산장부</span>
         </span>
-        <span className="shrink-0 text-[10.5px] font-semibold text-[#f5c433]">retools.kr →</span>
+        <span className="shrink-0 text-[10.5px] font-semibold text-[#f5c433]">retools.kr</span>
       </div>
     </div>
   );
