@@ -201,13 +201,16 @@ npm run verify:calc
   단계에서 깨지는 경우가 있음 — 이건 모바일 공유시트를 위한 API라 데스크톱에서 신뢰하기 어려움.
   수정: `navigator.maxTouchPoints > 0`(터치 기기)일 때만 공유 시도, PC 등 그 외 환경은 바로
   다운로드로 처리. 공유 시도 중 오류(취소 제외) 시에도 다운로드로 자동 폴백하도록 보강.
-- **버그 수정: 다운로드한 영수증 카드 PNG에서만 CTA 바 한글 받침이 잘리는 문제.** 화면에는
-  정상 표시되는데 `html2canvas`로 캡처한 이미지에서만 하단 텍스트가 잘려 나옴 — 원인은 카드
-  바깥 컨테이너의 `overflow-hidden`(모서리 둥글게 처리용)이 html2canvas의 재레이아웃 과정에서
-  실제보다 살짝 작게 계산된 높이 기준으로 하단을 잘라낸 것으로 추정. `overflow-hidden`을 제거하고
-  대신 하단 CTA 바 자체에 `rounded-b-[11px]`를 줘서 모서리를 처리(부모 클리핑에 의존하지 않도록
-  구조 변경), `ShareReceiptButton.tsx`의 `html2canvas()` 호출에도 `height`/`windowHeight`를
-  `node.scrollHeight`로 명시해 여유 있게 캡처하도록 보강.
+- **버그 수정: CTA 바 한글 받침(ㄴ,ㅁ 등) 잘림 — 진짜 원인은 `truncate` 클래스였음.** 처음엔
+  화면은 멀쩡한데 다운로드 이미지만 잘린다고 판단해 카드 바깥 `overflow-hidden` 제거 +
+  `html2canvas` 캡처 높이 명시(`windowHeight`)로 고쳤는데, 이후 형이 실제로는 **화면(계산기
+  상태 미리보기)에서도 똑같이 잘리고 있다**고 알려줘서 재조사함. 진짜 원인은 CTA 바 중간
+  텍스트("공인중개사 스마트 정산장부") span에 걸려있던 Tailwind `truncate`
+  (`overflow:hidden`+`text-overflow:ellipsis`+`nowrap`) 클래스 — 이 `overflow:hidden`이
+  화면·캡처 이미지 양쪽 모두에서 그 줄의 한글 받침을 살짝 잘라내고 있었음(짧은 고정 문구라
+  애초에 말줄임표가 필요 없는데 방어적으로 넣어둔 게 화근). `truncate` 제거하고
+  `whitespace-nowrap`만 남김, 정렬도 다시 `items-center`로 되돌려 로고·텍스트 눈높이를 맞춤.
+  (이전에 시도했던 `overflow-hidden` 제거/`windowHeight` 명시는 부작용은 없어 그대로 유지.)
 - **영수증 카드(`ReceiptCard.tsx`) 디자인 개선** — PM 제안 3안 중 "2안(바이럴 후킹 CTA 바형)"
   채택. 하단의 밋밋한 회색 영문 텍스트를 Core Navy(`#0A2540`) 풀블리드 바로 교체하고
   `rb-mark-white.png` 심볼 + "리얼티북 | 공인중개사 1초 정산장부 (2인 평생 무료) · retools.kr →"
