@@ -49,16 +49,20 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
         className="flex flex-col items-center gap-3 overflow-hidden rounded-b-[11px] px-[22px] py-[17px]"
         style={{ background: "linear-gradient(120deg, #08203a 0%, #0d3b57 55%, #15719b 100%)" }}
       >
-        <div className="flex flex-wrap items-center justify-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/rb-mark-white.png" alt="" className="h-[23px] w-auto shrink-0" />
-          <span className="whitespace-nowrap text-base font-extrabold tracking-[-0.2px] text-white">리얼티북</span>
-          <span className="h-[15px] w-px shrink-0 bg-white/[0.28]" />
-          <span className="whitespace-nowrap text-[15px] font-bold tracking-[-0.2px] text-[#C8E9F2]">
-            공인중개사 1초 정산장부
+        {/* 카드 폭이 730px 목업보다 훨씬 좁은 모바일에서는 5개 인라인 요소가 flex-wrap으로
+            제각각 다른 지점에서 줄바꿈되어 정렬이 흐트러졌다. 브랜드 줄/혜택 줄을 처음부터
+            분리된 두 줄로 고정해 카드 폭과 무관하게 항상 같은 모양이 되도록 한다. */}
+        <div className="flex flex-col items-center gap-1.5">
+          <span className="flex items-center gap-1.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icons/rb-mark-white.png" alt="" className="h-[23px] w-auto shrink-0" />
+            <span className="whitespace-nowrap text-base font-extrabold tracking-[-0.2px] text-white">
+              리얼티북
+            </span>
           </span>
-          <span className="whitespace-nowrap text-sm font-extrabold tracking-[-0.2px] text-[#F5C433]">
-            (2인 평생 무료)
+          <span className="text-center text-[13px] font-bold leading-snug tracking-[-0.2px] text-[#C8E9F2]">
+            공인중개사 1초 정산장부{" "}
+            <span className="font-extrabold text-[#F5C433]">· 2인 평생 무료</span>
           </span>
         </div>
         <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-[#F5C433] px-5 py-[11px] text-[14.5px] font-extrabold leading-none tracking-[-0.2px] text-[#0A2540] shadow-[0_5px_14px_rgba(8,32,68,0.32)]">
