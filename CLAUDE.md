@@ -40,7 +40,8 @@
 - **GitHub**: https://github.com/xchanz-tech/calc-realty (Public, main 브랜치)
   → main에 push하면 Vercel이 자동 배포
 - 로그인/DB/서버 API 없음 — 계산은 전부 브라우저에서 즉시 처리 (`.env.local` 불필요)
-- 사업자등록증: 등록 진행 중 (발급 완료 후 상호/사업자번호 기재 예정 — Footer 컴포넌트 참고)
+- 사업자등록증: 2026-08-18 발급 완료 (사업자등록번호 141-52-01181, `lib/retoolsInfo.ts`에 반영 —
+  Footer/이용약관/개인정보처리방침/환불정책 페이지가 전부 이 값을 참조)
 
 ## 작업 규칙
 

@@ -9,10 +9,9 @@ export const RETOOLS_INFO = {
   brandDesc: "리툴스 소프트웨어 랩스",
   ceoName: "박종찬",
   ceoTitle: "대표이사 / CEO & Founder",
-  // [TODO] 사업자 등록 진행 중 — 등록번호 발급되면 채울 것 (apple-realty-settlement와 동시에)
-  businessRegistrationNo: "",
-  // 2026-08-14 기준 임시 주소(자택). 추후 공유오피스 등 확보 시 이 값만 교체하면 된다.
-  address: "부산광역시 사상구 백양대로 372-22, 109-1303",
+  // 2026-08-18 사업자 등록 완료(발급)
+  businessRegistrationNo: "141-52-01181",
+  address: "부산광역시 사상구 백양대로 372-22, 109동 1303호",
   phone: "010-6540-5894",
   email: "retools.official@gmail.com",
   mailOrderRegistrationStatus: "신고 진행 중 (발급 완료 후 기재 예정)",
