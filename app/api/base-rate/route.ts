@@ -40,7 +40,12 @@ export async function GET() {
     const start = new Date();
     start.setDate(end.getDate() - 180); // 기준금리 변경 주기(연 8회 회의)에 비해 넉넉한 조회 범위
 
-    const url = `https://ecos.bok.or.kr/api/StatisticSearch/${apiKey}/json/kr/1/100/${STAT_CODE}/D/${formatYmd(
+    // 요청 건수를 넉넉하게(500) 잡아야 한다 — 이 통계는 일별로 값이 갱신되므로 180일 범위면
+    // 로우가 150~190개 정도 나온다. 요청 건수를 너무 작게 잡으면(예: 100) 응답이 날짜 오름차순
+    // 오래된 쪽부터 잘려서, "마지막 로우 = 최신값"이라는 가정이 깨지고 옛날 값을 최신값으로
+    // 잘못 읽는 버그가 생긴다(실제로 로컬 curl 테스트에서 재현됨 — 100건 요청 시 최신값이
+    // 2026-03-22자 값으로 잘못 나옴). 500이면 180일치가 통째로 들어와서 안전하다.
+    const url = `https://ecos.bok.or.kr/api/StatisticSearch/${apiKey}/json/kr/1/500/${STAT_CODE}/D/${formatYmd(
       start
     )}/${formatYmd(end)}/${ITEM_CODE}`;
 
