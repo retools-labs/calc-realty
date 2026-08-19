@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "kr.retools.realtycalc",
+      "sha256_cert_fingerprints": [
+        "F5:3C:B5:D9:28:CB:01:93:08:EC:E8:D6:AD:10:FE:B9:E9:66:F1:06:21:DE:D0:04:9C:C8:E4:74:A0:B1:6B:4F"
+      ]
+    }
+  }
+]
