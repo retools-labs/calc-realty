@@ -8,14 +8,32 @@
 
 - Next.js 14.2.35 (App Router) + TypeScript + Tailwind CSS
 - 별도 DB/로그인 없음 (계산은 전부 브라우저에서 즉시 처리)
+- 예외 1건: `app/api/base-rate`(서버리스 라우트) — 전월세 전환율 계산기가 쓰는 한국은행
+  기준금리를 실시간으로 대신 조회해주는 얇은 프록시. DB는 아니지만 첫 서버 API/환경변수라
+  아래 "2." 참고
 - Vercel Hobby 플랜으로 배포 예정
 
 ## 2. 로컬에서 실행하기
 
 ```bash
 npm install
+cp .env.local.example .env.local   # ECOS_API_KEY 채워넣기 (아래 참고)
 npm run dev        # http://localhost:3000
 ```
+
+### 환경변수 — `ECOS_API_KEY` (전월세 전환율 계산기용, 선택사항이지만 강력 권장)
+
+전월세 전환율(3.6) 계산기는 한국은행 ECOS Open API로 **기준금리를 실시간 조회**해서 법정 전환율
+상한을 자동 계산합니다. 키가 없어도 앱은 정상 작동하지만(마지막으로 확인해둔 값으로 대체), 형이
+매번 직접 기준금리를 확인해줄 필요가 없으려면 키를 발급받아 등록하는 걸 권장합니다.
+
+1. https://ecos.bok.or.kr/api/ 접속 → 회원가입(이메일만 있으면 됨) → `OpenAPI` →
+   `인증키 신청` → 활용 목적 간단히 기재(예: "개인 프로젝트 부동산 계산기 개발")
+2. 가입 즉시~1일 이내 인증키 발급됨 (`마이페이지` → `인증키 관리`에서 확인)
+3. 로컬 개발: `.env.local`에 `ECOS_API_KEY=발급받은키` 추가
+4. **프로덕션(Vercel)**: Vercel 프로젝트 → Settings → Environment Variables →
+   `ECOS_API_KEY` 이름으로 등록 → 재배포. 이걸 안 하면 프로덕션에서도 폴백값(수동 확인값)으로
+   동작함(앱이 죽지는 않지만 실시간 갱신이 안 됨).
 
 계산 로직만 빠르게 검증하려면:
 
@@ -59,8 +77,9 @@ npm run verify:calc
    git remote add origin https://github.com/xchanz-tech/calc-realty.git
    git push -u origin main
    ```
-3. https://vercel.com 에서 "Add New Project" → 방금 만든 저장소 선택 → 별도 환경변수 없이 바로 Deploy
-   (이 앱은 DB/Auth가 없어서 `.env.local` 설정이 필요 없습니다)
+3. https://vercel.com 에서 "Add New Project" → 방금 만든 저장소 선택 → Deploy
+   (DB/Auth는 없어서 `.env.local` 없이도 배포·동작은 됩니다. 다만 전월세 전환율 계산기의
+   기준금리 실시간 갱신을 쓰려면 위 "2."의 `ECOS_API_KEY`를 Vercel 환경변수에 등록하세요)
 4. 배포되면 `calc-realty.vercel.app` 같은 주소가 생깁니다. 커스텀 도메인을 쓰고 싶으면 Vercel
    프로젝트 설정 → Domains에서 추가하면 됩니다.
 
@@ -360,3 +379,33 @@ Claude Design에서 PM 권고사항 반영한 "부동산 계산기 v1.1" 목업�
   본문에 새 제목처럼 잘못 들어간 사고 발생 → 즉시 Ctrl+Z로 원복하고 스크린샷으로 문서 정상
   상태 확인 후 계속 진행함(실제 문서에는 반영 안 됨).
 - 아직 `git push` 전 — 위 v1.1 리디자인 작업과 함께 한 번에 커밋 예정.
+
+### 12-2. 같은 세션 이어서 — 기준금리 실시간 API 연동 (하드코딩 → 자동 갱신)
+
+12-1에서 기준금리를 상수로 하드코딩해뒀는데, 형이 "MAX 플랜이니 매번 사람이 확인 안 해도 되게
+자동 갱신으로 만들자"고 해서 실시간 연동으로 업그레이드함. 하드코딩/정기 수동확인/실시간 API
+3가지 옵션을 제시했고 형이 **실시간 API 연동**을 선택.
+
+- **신규 서버리스 라우트** `app/api/base-rate/route.ts` — 한국은행 ECOS Open API(통계표
+  `722Y001`, 항목코드 `0101000` = 한국은행 기준금리, 일별 시계열)를 서버에서 대신 호출.
+  `ECOS_API_KEY` 환경변수 필요(README "2." 참고). 6시간 캐시(`revalidate = 21600`)로 ECOS
+  호출을 아낌. 키가 없거나 호출이 실패하면 `lib/jeonseConversion.ts`의
+  `FALLBACK_BASE_RATE_PERCENT`(2026-07-16 결정, 2.75%)로 조용히 대체하고 `stale: true`를
+  내려줌 — 실패해도 계산기가 멈추지 않는 우아한 저하(graceful degradation) 설계.
+- **`lib/jeonseConversion.ts` 리팩터**: `CURRENT_BASE_RATE_PERCENT` → `FALLBACK_BASE_RATE_PERCENT`로
+  이름을 바꿔 "이건 폴백용일 뿐, 실제로는 API가 실시간 값을 준다"는 의미를 명확히 함.
+  `calcConversion()`이 `currentBaseRatePercent`를 인자로 받아 법정 상한 판정에 실시간 값을
+  쓰도록 변경.
+- **`components/JeonseConversionCalculator.tsx`**: 마운트 시 `/api/base-rate`를 fetch해서
+  기준금리를 받아오고, 전환율 슬라이더 기본값을 실시간 법정 상한으로 자동 세팅(사용자가 슬라이더를
+  직접 만지면 그 선택을 존중하고 덮어쓰지 않음 — "법정 상한으로" 버튼으로 언제든 복귀 가능).
+  화면에 "한국은행 실시간 확인, YYYY-MM-DD 기준" 또는 실패 시 "실시간 확인 실패 — 마지막
+  확인값 사용 중"을 안내 문구로 표시해 사용자가 데이터 신선도를 알 수 있게 함.
+- **`.env.local.example` 신규 추가** + README "2."에 ECOS 인증키 발급·Vercel 환경변수 등록
+  절차 문서화. `ECOS_API_KEY`는 `.gitignore`의 `.env.local` 패턴에 걸리지 않으므로 예시 파일
+  자체는 정상 커밋됨(빈 값).
+- `npx tsc --noEmit -p tsconfig.json` 클린 통과(exit 0).
+- **형이 해야 할 일**: `ECOS_API_KEY`는 형 계정으로 직접 발급받아야 하는 값이라 Claude가 대신
+  가입할 수 없음. https://ecos.bok.or.kr/api/ 에서 무료 가입 후 Vercel 프로젝트 환경변수에
+  등록해주면 그 이후로는 완전 자동 — 형이 다시 신경 쓸 일 없음. 키 등록 전까지는 폴백값(2.75%,
+  2026-07-16 기준)으로 계속 정상 동작함.

@@ -1,32 +1,88 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatKRW } from "@/lib/calc";
 import {
   calcConversion,
   calcRenewalCap,
   getStatutoryConversionRatePercent,
-  CURRENT_BASE_RATE_PERCENT,
-  BASE_RATE_CONFIRMED_DATE,
+  FALLBACK_BASE_RATE_PERCENT,
+  FALLBACK_BASE_RATE_DATE,
   RENEWAL_INCREASE_CAP_PERCENT,
   type ConversionDirection,
 } from "@/lib/jeonseConversion";
 import { SegButton, WonInput, formatKoreanUnit } from "./ui";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
 
-const STATUTORY_CAP = getStatutoryConversionRatePercent();
+interface BaseRateInfo {
+  ratePercent: number;
+  effectiveDate: string;
+  source: "ecos" | "fallback";
+  stale: boolean;
+}
+
+const INITIAL_BASE_RATE: BaseRateInfo = {
+  ratePercent: FALLBACK_BASE_RATE_PERCENT,
+  effectiveDate: FALLBACK_BASE_RATE_DATE,
+  source: "fallback",
+  stale: true,
+};
 
 export default function JeonseConversionCalculator() {
+  // 한국은행 기준금리 실시간 조회 — /api/base-rate가 ECOS Open API를 서버에서 대신 호출해준다.
+  // 사용자는 아무것도 확인할 필요 없이, 화면을 열 때마다 자동으로 최신 법정 상한이 반영된다.
+  const [baseRateInfo, setBaseRateInfo] = useState<BaseRateInfo>(INITIAL_BASE_RATE);
+  const [baseRateLoading, setBaseRateLoading] = useState(true);
+  const statutoryCap = useMemo(
+    () => getStatutoryConversionRatePercent(baseRateInfo.ratePercent),
+    [baseRateInfo.ratePercent]
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/base-rate")
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (typeof data?.ratePercent === "number") {
+          setBaseRateInfo(data);
+        }
+      })
+      .catch(() => {
+        /* 조용히 실패 — INITIAL_BASE_RATE(폴백)로 계속 동작 */
+      })
+      .finally(() => {
+        if (!cancelled) setBaseRateLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // 전월세 전환 계산기
   const [direction, setDirection] = useState<ConversionDirection>("depositToRent");
   const [baseDeposit, setBaseDeposit] = useState(0);
   const [targetValue, setTargetValue] = useState(0);
-  const [rate, setRate] = useState(STATUTORY_CAP);
+  const [rate, setRate] = useState(INITIAL_BASE_RATE.ratePercent + 2);
+  const [rateTouched, setRateTouched] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // 실시간 기준금리가 도착하면, 사용자가 슬라이더를 직접 만지지 않은 한 자동으로 최신 법정
+  // 상한으로 맞춰준다(사용자가 이미 조정했다면 그 선택을 존중해 덮어쓰지 않는다).
+  useEffect(() => {
+    if (!rateTouched) setRate(statutoryCap);
+  }, [statutoryCap, rateTouched]);
+
   const conversionResult = useMemo(
-    () => calcConversion({ direction, baseDeposit, targetDepositOrRent: targetValue, conversionRatePercent: rate }),
-    [direction, baseDeposit, targetValue, rate]
+    () =>
+      calcConversion({
+        direction,
+        baseDeposit,
+        targetDepositOrRent: targetValue,
+        conversionRatePercent: rate,
+        currentBaseRatePercent: baseRateInfo.ratePercent,
+      }),
+    [direction, baseDeposit, targetValue, rate, baseRateInfo.ratePercent]
   );
 
   // 갱신청구권 5% 상한 계산기
@@ -40,11 +96,11 @@ export default function JeonseConversionCalculator() {
   const shareText = useMemo(() => {
     const lines = [
       `[전월세 전환율 계산 결과]`,
-      `법정 전환율 상한: ${STATUTORY_CAP.toFixed(2)}% (기준금리 ${CURRENT_BASE_RATE_PERCENT}% + 2%p vs 연 10% 중 낮은 값, ${BASE_RATE_CONFIRMED_DATE} 확인)`,
+      `법정 전환율 상한: ${statutoryCap.toFixed(2)}% (기준금리 ${baseRateInfo.ratePercent}% + 2%p vs 연 10% 중 낮은 값, ${baseRateInfo.effectiveDate} 기준${baseRateInfo.stale ? ", 실시간 확인 실패로 마지막 확인값 사용" : ""})`,
       direction === "depositToRent"
         ? `보증금 ${formatKRW(baseDeposit)} → ${formatKRW(targetValue)}로 낮출 때, 적용 전환율 ${rate.toFixed(2)}% 기준 월세: ${formatKRW(conversionResult?.monthlyRent ?? 0)}`
         : `보증금 ${formatKRW(baseDeposit)} + 월세 ${formatKRW(targetValue)}를 전환율 ${rate.toFixed(2)}%로 환산한 보증금: ${formatKRW(conversionResult?.equivalentDeposit ?? 0)}`,
-      conversionResult?.exceedsStatutoryCap ? `⚠ 적용 전환율이 법정 상한(${STATUTORY_CAP.toFixed(2)}%)을 초과합니다.` : null,
+      conversionResult?.exceedsStatutoryCap ? `⚠ 적용 전환율이 법정 상한(${statutoryCap.toFixed(2)}%)을 초과합니다.` : null,
       ``,
       `[계약갱신청구권 5% 상한]`,
       `기존 보증금 ${formatKRW(currentDeposit)} / 월세 ${formatKRW(currentMonthlyRent)}`,
@@ -52,7 +108,7 @@ export default function JeonseConversionCalculator() {
       currentMonthlyRent > 0 ? `갱신 시 최대 월세: ${formatKRW(renewalResult.maxMonthlyRent)} (+${formatKRW(renewalResult.monthlyRentIncrease)})` : null,
     ].filter(Boolean);
     return lines.join("\n");
-  }, [direction, baseDeposit, targetValue, rate, conversionResult, currentDeposit, currentMonthlyRent, renewalResult]);
+  }, [direction, baseDeposit, targetValue, rate, conversionResult, currentDeposit, currentMonthlyRent, renewalResult, statutoryCap, baseRateInfo]);
 
   async function handleCopy() {
     try {
@@ -71,9 +127,15 @@ export default function JeonseConversionCalculator() {
         주택임대차보호법상 법정 전환율 상한과, 계약갱신청구권 행사 시 5% 증액 상한을 계산해드립니다.
       </p>
       <p className="mt-2 rounded-lg bg-[#F2F6FA] px-3 py-2 text-xs leading-relaxed text-[#4E5968]">
-        현재 법정 전환율 상한 <span className="font-bold text-cobalt">{STATUTORY_CAP.toFixed(2)}%</span> ·
-        한국은행 기준금리 {CURRENT_BASE_RATE_PERCENT}%+ 2%p와 연 10% 중 낮은 값 ({BASE_RATE_CONFIRMED_DATE} 기준.
-        기준금리는 수시로 바뀌니 실제 계약 시 한국은행 발표로 재확인하세요.)
+        현재 법정 전환율 상한 <span className="font-bold text-cobalt">{statutoryCap.toFixed(2)}%</span> ·
+        한국은행 기준금리 {baseRateInfo.ratePercent}% + 2%p와 연 10% 중 낮은 값
+        {baseRateLoading ? (
+          <span className="text-[#8B95A1]"> (기준금리 확인 중…)</span>
+        ) : baseRateInfo.stale ? (
+          <span className="text-[#E0453C]"> (실시간 확인 실패 — {baseRateInfo.effectiveDate} 기준 마지막 확인값 사용 중)</span>
+        ) : (
+          <span className="text-cobalt"> (한국은행 실시간 확인, {baseRateInfo.effectiveDate} 기준)</span>
+        )}
       </p>
 
       {/* 전월세 전환 계산기 */}
@@ -119,12 +181,29 @@ export default function JeonseConversionCalculator() {
             max={10}
             step={0.05}
             value={rate}
-            onChange={(e) => setRate(Number(e.target.value))}
+            onChange={(e) => {
+              setRateTouched(true);
+              setRate(Number(e.target.value));
+            }}
             className="w-full accent-cobalt"
           />
-          <p className="mt-1 text-xs text-[#8B95A1]">
-            * 기본값은 법정 상한({STATUTORY_CAP.toFixed(2)}%)이며, 협의된 다른 전환율로 비교해볼 수 있어요.
-          </p>
+          <div className="mt-1 flex items-center justify-between">
+            <p className="text-xs text-[#8B95A1]">
+              * 기본값은 법정 상한({statutoryCap.toFixed(2)}%)이며, 협의된 다른 전환율로 비교해볼 수 있어요.
+            </p>
+            {rateTouched && (
+              <button
+                type="button"
+                onClick={() => {
+                  setRateTouched(false);
+                  setRate(statutoryCap);
+                }}
+                className="shrink-0 pl-2 text-xs font-semibold text-cobalt underline"
+              >
+                법정 상한으로
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -167,7 +246,7 @@ export default function JeonseConversionCalculator() {
         )}
         {conversionResult?.exceedsStatutoryCap && (
           <p className="mt-2 text-xs font-semibold text-[#E0453C]">
-            ⚠ 적용 전환율이 법정 상한 {STATUTORY_CAP.toFixed(2)}%를 초과했어요. 실제 계약에서는 상한을
+            ⚠ 적용 전환율이 법정 상한 {statutoryCap.toFixed(2)}%를 초과했어요. 실제 계약에서는 상한을
             넘는 전환율을 요구할 수 없어요.
           </p>
         )}
@@ -211,8 +290,8 @@ export default function JeonseConversionCalculator() {
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         본 계산 결과는 주택임대차보호법 및 같은 법 시행령 기준 참고용 안내이며, 법정 전환율 상한은
-        한국은행 기준금리 변동에 따라 수시로 바뀝니다. 실제 계약 전 최신 기준금리와 관할 법령을 꼭
-        다시 확인하세요.
+        한국은행 기준금리 변동에 따라 수시로 바뀝니다(이 화면은 한국은행 공시 기준금리를 실시간으로
+        반영합니다). 실제 계약 전 관할 법령을 꼭 다시 확인하세요.
       </p>
     </div>
   );

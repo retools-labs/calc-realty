@@ -10,22 +10,25 @@
 //   임차인이 계약갱신요구권을 행사해 갱신되는 경우, 차임이나 보증금의 증액청구는 약정한
 //   차임 등의 20분의 1(=5%) 금액을 초과하지 못한다. 이 5%는 기준금리와 무관한 고정 상한이다.
 //
-// ⚠️ 기준금리는 한국은행 금융통화위원회가 연 8회(통상 매 6주) 회의에서 바꿀 수 있으므로,
-//   아래 CURRENT_BASE_RATE는 세션마다(또는 최소 분기 1회) 한국은행 공식 발표
-//   (https://www.bok.or.kr/portal/singl/baseRate/list.do)로 재확인 후 갱신해야 한다.
-//   최종 확인: 2026-08-19, 2026-07-16 금통위 결정 기준 연 2.75%
-//   (2023년 1월 이후 첫 인상, 다음 회의 2026-08-27 예정 — 그 이후엔 재확인 필요).
+// ⚠️ 기준금리는 한국은행 금융통화위원회가 연 8회(통상 매 6주) 회의에서 바꿀 수 있다.
+//   실제 서비스에서는 `app/api/base-rate`가 한국은행 ECOS Open API로 매번 최신값을 실시간
+//   조회해서 쓰므로 사람이 수동으로 갱신할 필요가 없다. 아래 FALLBACK_BASE_RATE_PERCENT는
+//   ECOS 인증키가 없거나(로컬 개발 등) API 호출이 실패했을 때만 쓰이는 최후의 안전값이다.
+//   마지막으로 사람이 직접 확인한 값: 2026-08-19 확인, 2026-07-16 금통위 결정 기준 연 2.75%
+//   (2023년 1월 이후 첫 인상). 이 폴백값이 오래돼 보이면(반년 이상) 한국은행 발표
+//   (https://www.bok.or.kr/portal/singl/baseRate/list.do)로 재확인해서 갱신해줄 것.
 
-export const CURRENT_BASE_RATE_PERCENT = 2.75; // 한국은행 기준금리(%), 2026-08-19 확인
-export const BASE_RATE_CONFIRMED_DATE = "2026-08-19";
-export const BASE_RATE_DECISION_DATE = "2026-07-16";
+export const FALLBACK_BASE_RATE_PERCENT = 2.75; // ECOS 실시간 조회 실패 시 대체값
+export const FALLBACK_BASE_RATE_DATE = "2026-07-16"; // 위 폴백값이 결정된 금통위 회의일
 
 export const STATUTORY_CAP_RATE_PERCENT = 10; // 시행령 제9조 제1항: 연 1할
 export const BASE_RATE_MARGIN_PERCENT = 2; // 시행령 제9조 제2항: 기준금리 + 연 2%p
 export const RENEWAL_INCREASE_CAP_PERCENT = 5; // 시행령 제8조: 갱신 시 증액청구 상한 5%(20분의 1)
 
-// 현재 적용되는 법정 전환율 상한(%) = min(연 1할, 기준금리 + 2%p)
-export function getStatutoryConversionRatePercent(baseRatePercent: number = CURRENT_BASE_RATE_PERCENT): number {
+// 특정 시점 기준금리(%)로 법정 전환율 상한(%) = min(연 1할, 기준금리 + 2%p) 계산.
+// baseRatePercent를 생략하면 폴백값을 쓰지만, 실제 화면에서는 항상
+// `app/api/base-rate`로 조회한 실시간 값을 넘겨서 호출해야 한다.
+export function getStatutoryConversionRatePercent(baseRatePercent: number = FALLBACK_BASE_RATE_PERCENT): number {
   return Math.min(STATUTORY_CAP_RATE_PERCENT, baseRatePercent + BASE_RATE_MARGIN_PERCENT);
 }
 
@@ -38,6 +41,7 @@ export interface ConversionInput {
   baseDeposit: number; // 기준이 되는 현재 보증금(전세보증금 또는 월세 계약의 보증금)
   targetDepositOrRent: number; // depositToRent: 전환 후 낮출 보증금 / rentToDeposit: 현재 월세
   conversionRatePercent: number; // 적용할 전환율(%) — 기본은 법정 상한, 사용자가 낮게 조정 가능
+  currentBaseRatePercent?: number; // 실시간 한국은행 기준금리(%) — 법정 상한 판정 기준
 }
 
 export interface ConversionResult {
@@ -49,10 +53,10 @@ export interface ConversionResult {
 }
 
 export function calcConversion(input: ConversionInput): ConversionResult | null {
-  const { direction, baseDeposit, targetDepositOrRent, conversionRatePercent } = input;
+  const { direction, baseDeposit, targetDepositOrRent, conversionRatePercent, currentBaseRatePercent } = input;
   if (conversionRatePercent <= 0) return null;
 
-  const statutoryCapPercent = getStatutoryConversionRatePercent();
+  const statutoryCapPercent = getStatutoryConversionRatePercent(currentBaseRatePercent);
   const exceedsStatutoryCap = conversionRatePercent > statutoryCapPercent + 1e-9;
 
   if (direction === "depositToRent") {
