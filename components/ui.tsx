@@ -8,6 +8,24 @@ export function parseWon(raw: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+// 금액을 "n억 n천만원" 식 한글 단위 힌트로 변환. WonInput 아래 보조 텍스트로 노출해서
+// 자릿수를 세지 않아도 입력값이 맞는지 바로 확인할 수 있게 한다.
+export function formatKoreanUnit(n: number): string {
+  if (!n || n <= 0) return "";
+  const eok = Math.floor(n / 100_000_000);
+  const man = Math.floor((n % 100_000_000) / 10_000);
+  const won = n % 10_000;
+
+  const parts: string[] = [];
+  if (eok > 0) parts.push(`${eok.toLocaleString("ko-KR")}억`);
+  if (man > 0) parts.push(`${man.toLocaleString("ko-KR")}만`);
+  if (parts.length === 0) {
+    // 만원 미만 소액은 그대로 원 단위로 보여준다.
+    return `${won.toLocaleString("ko-KR")}원`;
+  }
+  return `${parts.join(" ")}원`;
+}
+
 export function WonInput({
   label,
   value,
@@ -19,19 +37,23 @@ export function WonInput({
   onChange: (v: number) => void;
   placeholder?: string;
 }) {
+  const hint = formatKoreanUnit(value);
   return (
     <label className="block">
       <span className="mb-1 block text-sm font-medium text-[#4E5968]">{label}</span>
       <div className="flex items-center rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 focus-within:border-cobalt">
         <input
           inputMode="numeric"
-          className="w-full bg-transparent text-lg font-semibold outline-none placeholder:text-[#B0B8C1]"
+          className="w-full bg-transparent font-sora text-xl font-bold text-navy outline-none placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:text-[#B0B8C1]"
           placeholder={placeholder ?? "0"}
           value={value ? value.toLocaleString("ko-KR") : ""}
           onChange={(e) => onChange(parseWon(e.target.value))}
         />
         <span className="ml-2 shrink-0 text-[#8B95A1]">원</span>
       </div>
+      {hint && (
+        <span className="mt-1 block pl-1 text-xs font-semibold text-cobalt">{hint}</span>
+      )}
     </label>
   );
 }

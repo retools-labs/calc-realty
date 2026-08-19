@@ -115,6 +115,30 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
 
       <div className="mt-5 space-y-4">
         <div>
+          <span className="mb-2 block text-sm font-medium text-[#4E5968]">거래 유형</span>
+          <SegButton
+            value={dealType === "sale" ? "sale" : isMonthly ? "monthly" : "jeonse"}
+            onChange={(v) => {
+              if (v === "sale") {
+                setDealType("sale");
+                setIsMonthly(false);
+              } else if (v === "jeonse") {
+                setDealType("lease");
+                setIsMonthly(false);
+              } else {
+                setDealType("lease");
+                setIsMonthly(true);
+              }
+            }}
+            options={[
+              { value: "sale", label: "매매" },
+              { value: "jeonse", label: "전세" },
+              { value: "monthly", label: "월세" },
+            ]}
+          />
+        </div>
+
+        <div>
           <span className="mb-2 block text-sm font-medium text-[#4E5968]">매물 유형</span>
           <SegButton
             value={propertyType}
@@ -123,39 +147,10 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
               { value: "house", label: "주택" },
               { value: "officetelSmall", label: "오피스텔 (85㎡ 이하)" },
               { value: "officetelOther", label: "오피스텔 (85㎡ 초과)" },
-              { value: "other", label: "토지·상가" },
+              { value: "other", label: "상가·토지" },
             ]}
           />
         </div>
-
-        <div>
-          <span className="mb-2 block text-sm font-medium text-[#4E5968]">거래 유형</span>
-          <SegButton
-            value={dealType}
-            onChange={(v) => {
-              setDealType(v);
-              if (v === "sale") setIsMonthly(false);
-            }}
-            options={[
-              { value: "sale", label: "매매·교환" },
-              { value: "lease", label: "임대차(전세/월세)" },
-            ]}
-          />
-        </div>
-
-        {dealType === "lease" && (
-          <div>
-            <span className="mb-2 block text-sm font-medium text-[#4E5968]">임대차 세부유형</span>
-            <SegButton
-              value={isMonthly ? "monthly" : "jeonse"}
-              onChange={(v) => setIsMonthly(v === "monthly")}
-              options={[
-                { value: "jeonse", label: "전세(보증금만)" },
-                { value: "monthly", label: "월세(보증금+월세)" },
-              ]}
-            />
-          </div>
-        )}
 
         {dealType === "sale" && (
           <WonInput label="매매가" value={price} onChange={setPrice} placeholder="예: 500,000,000" />

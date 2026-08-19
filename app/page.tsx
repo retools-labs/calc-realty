@@ -5,6 +5,8 @@ import BrokerageFeeCalculator from "@/components/BrokerageFeeCalculator";
 import ProrateCalculator from "@/components/ProrateCalculator";
 import MovingCostCalculator from "@/components/MovingCostCalculator";
 import CapRateCalculator from "@/components/CapRateCalculator";
+import PyeongCalculator from "@/components/PyeongCalculator";
+import JeonseConversionCalculator from "@/components/JeonseConversionCalculator";
 
 const PARTNER_URL = "https://apple-realty.vercel.app/partner";
 
@@ -199,17 +201,20 @@ function PartnerBanner() {
   );
 }
 
-type CalcTab = "fee" | "prorate" | "movingCost" | "capRate";
+type CalcTab = "fee" | "prorate" | "movingCost" | "capRate" | "pyeong" | "jeonseConversion";
 type Mode = "customer" | "agent";
 
-// PM 권고: 4개 탭은 모드와 무관하게 전부 개방. 상단 [일반고객용]/[공인중개사 실무용]
-// 스위치는 중개사 어필용으로 유지하되, "실무용"을 켰을 때는 복비 탭 안에서만 추가 필드
+// PM 권고(v1.1): 상단 입력폼을 라이트 배경으로 바꾸고, 모드 스위치를 헤더 카드에서 분리.
+// 탭은 모드와 무관하게 전부 개방하며, "실무용"을 켰을 때는 복비 탭 안에서만 추가 필드
 // (공동중개 단타/양타, 정산비율 슬라이더 → 내 실수령액)가 열리는 방식으로 남긴다.
+// 전월세 전환율·5% 상한 계산기(3.6): 법정 기준금리(2026-08-19 기준 2.75%) 확인 후 추가 완료.
 const TABS: { value: CalcTab; label: string; icon: string }[] = [
-  { value: "fee", label: "복비 계산기", icon: "💰" },
-  { value: "prorate", label: "일할 계산기", icon: "📅" },
-  { value: "movingCost", label: "부대비용", icon: "🏠" },
-  { value: "capRate", label: "상가 수익률", icon: "🏢" },
+  { value: "fee", label: "복비 계산", icon: "💰" },
+  { value: "prorate", label: "잔금일 일할", icon: "📅" },
+  { value: "movingCost", label: "취득세·부대", icon: "🏠" },
+  { value: "capRate", label: "상가·수익률", icon: "🏢" },
+  { value: "pyeong", label: "평수·평단가", icon: "📐" },
+  { value: "jeonseConversion", label: "전월세·5%", icon: "🔄" },
 ];
 
 export default function Home() {
@@ -219,21 +224,19 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
       <div className="mx-auto mt-6 max-w-md px-4">
-        <div className="rounded-2xl bg-navy p-4 shadow-sm">
-          <div className="flex items-center gap-2">
-            <img src="/icons/icon-512.png" alt="리얼티북" className="h-9 w-9 shrink-0 rounded-lg shadow-sm" />
-            <span className="flex flex-1 flex-col leading-none">
-              <span className="flex items-center gap-1.5 font-sora text-base font-bold text-white">
-                부동산 계산기
-                <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-semibold text-cyan">
-                  v1.0
-                </span>
-              </span>
-              <span className="mt-1 text-xs text-[#7FA3C7]">복비·일할정산·취득세·수익률</span>
-            </span>
-          </div>
+        <div className="flex items-center justify-between px-1">
+          <span className="flex items-center gap-2">
+            <span className="font-sora text-xl font-extrabold text-navy">부동산 계산기</span>
+            <span className="text-sm font-semibold text-[#8B95A1]">v1.1</span>
+          </span>
+          <span className="rounded-full bg-gradient-to-b from-[#f8d055] to-[#f0b81f] px-2.5 py-1 text-[11px] font-extrabold text-navy shadow-sm">
+            FREE
+          </span>
+        </div>
+        <p className="mt-1 px-1 text-xs text-[#8B95A1]">복비·잔금일 일할계산부터 취득세까지 한번에</p>
 
-          <div className="mt-3 grid grid-cols-2 gap-1.5 rounded-xl bg-white/10 p-1">
+        <div className="mt-3 rounded-2xl bg-white p-1 shadow-sm">
+          <div className="grid grid-cols-2 gap-1">
             {(
               [
                 { value: "customer", label: "일반고객용" },
@@ -244,8 +247,8 @@ export default function Home() {
                 key={m.value}
                 type="button"
                 onClick={() => setMode(m.value)}
-                className={`rounded-lg px-2 py-2 text-xs font-semibold transition sm:text-sm ${
-                  mode === m.value ? "bg-cobalt text-white" : "text-[#9FBFD6]"
+                className={`rounded-xl px-2 py-2.5 text-xs font-semibold transition sm:text-sm ${
+                  mode === m.value ? "bg-navy text-[#f5c433] shadow-sm" : "text-[#8B95A1]"
                 }`}
               >
                 {m.label}
@@ -254,7 +257,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-3 grid grid-cols-4 gap-1.5">
+        <div className="mt-3 grid grid-cols-3 gap-1.5">
           {TABS.map((t) => (
             <button
               key={t.value}
@@ -275,6 +278,8 @@ export default function Home() {
           {tab === "prorate" && <ProrateCalculator mode={mode} />}
           {tab === "movingCost" && <MovingCostCalculator />}
           {tab === "capRate" && <CapRateCalculator />}
+          {tab === "pyeong" && <PyeongCalculator />}
+          {tab === "jeonseConversion" && <JeonseConversionCalculator />}
         </div>
       </div>
 
