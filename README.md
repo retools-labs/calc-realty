@@ -425,3 +425,54 @@ Claude Design에서 PM 권고사항 반영한 "부동산 계산기 v1.1" 목업�
   `A44NSDI3DHSZJ1XNOXS7`)를 형이 직접 등록해야 함(Claude는 Vercel 계정 접근 권한이 없음).
   등록 후 재배포하면 그 순간부터 실시간 기준금리 자동 반영 시작.
 - `npx tsc --noEmit -p tsconfig.json` 클린 통과.
+
+## 13. 2026-08-20 작업 내역 (울산 세션) — Android(TWA) 앱 패키징 + Play Store 출시 준비
+
+형이 "calc-realty를 구글 플레이스토어에 단독 앱으로 출시" 요청 (TWA/Bubblewrap 기반), 6가지 조건:
+패키지명 `kr.retools.realtycalc`, 앱이름 "부동산 계산기 (by 리얼티북)", 호스팅
+`https://calc-realty.vercel.app`, 512×512 아이콘, `assetlinks.json`, 서명 `.aab`.
+
+**Cowork 샌드박스에서 한 것:**
+- `keytool`로 서명 키스토어 생성(RSA 2048bit, alias `realtycalc`, 유효기간 10,000일/~27년).
+  **이 키는 앱을 한 번 출시한 뒤로는 절대 바뀌면 안 됨 — Play Store 업데이트마다 계속 재사용.**
+- `public/.well-known/assetlinks.json` 생성·커밋·배포 (앱↔웹사이트 소유권 증명, SHA256 지문 포함).
+  배포 확인: `https://calc-realty.vercel.app/.well-known/assetlinks.json`
+- Bubblewrap의 `TwaManifestJson` 스키마를 직접 읽어서 `twa-manifest.json`을 손으로 작성
+  (대화형 `bubblewrap init` 마법사 대신 — 패키지명/앱이름/색상/아이콘 URL/서명키 정보 전부 포함).
+- **샌드박스에서 실제 `.aab` 빌드는 완료 못 함**: Bubblewrap이 처음 실행 시 JDK 17 + Android SDK를
+  자동 다운로드하는데, 샌드박스의 매 명령 호출이 별도 프로세스라 다운로드가 이어받기 없이 매번
+  처음부터 다시 받아짐 → 시간 내에 못 끝남. 키스토어·`twa-manifest.json`·빌드 순서 안내를 만들어서
+  형 PC(로컬 Windows)로 넘김.
+
+**형 PC(로컬)에서 실제 빌드 진행하며 만난 문제 3개와 해결법 (다음에 또 나올 수 있으니 기록):**
+
+1. **PowerShell에서 한글이 깨짐** (`Get-Content`/`Set-Content`로 `twa-manifest.json`을 손보거나,
+   콘솔에 한글을 직접 붙여넣으면 `부동산` → `遺?숈궛` 식으로 깨짐). 원인: Windows PowerShell 5.1이
+   BOM 없는 UTF-8 파일을 시스템 코드페이지(한국어 Windows는 CP949)로 잘못 추측해서 읽음.
+   **해결**: 파일을 쓸 때는 Base64로 인코딩해서 콘솔에 붙여넣고
+   `[System.IO.File]::WriteAllBytes(...)`로 바이트 그대로 저장(콘솔 인코딩을 아예 안 거침),
+   읽어서 확인할 땐 `Get-Content ... -Encoding UTF8` 명시. Node.js(bubblewrap 본체)는 콘솔
+   인코딩과 무관하게 파일을 정확히 읽으므로 빌드 자체엔 문제 없음.
+2. **Gradle 빌드 시 `Could not reserve enough space for 1572864KB object heap`** (메모리 16GB에
+   여유 3GB 있어도 발생 — 물리 메모리 문제가 아니라 JVM이 요청한 만큼의 연속된 가상주소 공간을
+   못 잡는 문제). **해결**: 프로젝트 루트의 `gradle.properties`에서 기존
+   `org.gradle.jvmargs=-Xmx1536m` 줄을 지우고
+   `org.gradle.jvmargs=-Xmx1024m -XX:MaxMetaspaceSize=256m` + `org.gradle.daemon=false` 추가.
+3. **키스토어 서명 실패** (`keystore password was incorrect`): `PASSWORD_DO_NOT_LOSE.txt` 파일
+   내용이 `GENERATED_KEYSTORE_PASSWORD=실제비밀번호` 형식인데, `=` 앞부분(라벨)까지 통째로
+   비밀번호로 입력해서 발생. **`=` 뒤의 값만** Key Store/Key 비밀번호 둘 다에 입력해야 함
+   (이 키스토어는 storepass=keypass로 동일하게 생성해뒀음).
+
+**최종 결과**: `app-release-bundle.aab` + `app-release-signed.apk` 로컬 빌드 성공
+(`C:\android-signing\`). 키스토어·비밀번호는 형이 구글 드라이브
+(`G:\내 드라이브\Work\리툴스\android-signing`, 본인 PC마다 드라이브 문자는 다를 수 있음)에
+백업 완료. `assetlinks.json`은 `git push` 완료, 프로덕션에서 라이브 확인함(커밋 `cee23bc`).
+
+SHA256 인증서 지문(Play Console "앱 서명" 메뉴에서 대조용):
+`F5:3C:B5:D9:28:CB:01:93:08:EC:E8:D6:AD:10:FE:B9:E9:66:F1:06:21:DE:D0:04:9C:C8:E4:74:A0:B1:6B:4F`
+
+**아직 안 한 것**: Play Console에 `app-release-bundle.aab` 업로드 + 스토어 등록(스크린샷, 설명,
+개인정보처리방침 URL 등) + 심사 제출 — 전부 형이 직접 해야 하는 단계(Claude는 Play Console
+계정 접근 권한 없음). 이후 앱 업데이트할 때 다시 빌드해야 하면, 이 CLAUDE.md의
+"Android(TWA) 앱 빌드/업데이트 방법" 섹션에 재사용 가능한 전체 커맨드가 있음(부산 등 다른 PC에서도
+그대로 사용 가능하도록 정리해둠).

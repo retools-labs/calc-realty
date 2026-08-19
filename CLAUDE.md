@@ -59,8 +59,21 @@ apple-realty-settlement와 동일:
 ## 완료된 작업
 
 상세 내역은 README.md "7. 2026-08-17 작업 내역(울산)" / "8~10. 2026-08-17 작업 내역(부산)" /
-"11. 2026-08-18 작업 내역(부산)" / "12. 2026-08-19 작업 내역(울산)" 섹션 참고. 요약:
+"11. 2026-08-18 작업 내역(부산)" / "12. 2026-08-19 작업 내역(울산)" / "13. 2026-08-20 작업
+내역(울산)" 섹션 참고. 요약:
 
+- **[2026-08-20] Android(TWA) 앱 패키징 + Play Store 출시 준비(울산).** 형이 calc-realty를
+  구글 플레이스토어 단독 앱으로 출시 요청. 패키지명 `kr.retools.realtycalc`, 서명 키스토어
+  생성(RSA 2048bit, alias `realtycalc`, 유효 10,000일 — **이후 업데이트마다 계속 재사용해야
+  하는 키, 절대 분실 금지**), `public/.well-known/assetlinks.json` 생성·배포(커밋 `cee23bc`),
+  `twa-manifest.json`을 Bubblewrap 스키마 기준으로 직접 작성. 샌드박스는 JDK/Android SDK
+  다운로드가 매 호출마다 처음부터 다시 받아져서 실제 `.aab` 빌드는 못 끝냈고, 형 PC(로컬
+  PowerShell)로 넘겨서 빌드 완료(`app-release-bundle.aab`). 빌드 도중 PowerShell 한글 인코딩
+  깨짐/Gradle 메모리 부족/키스토어 비밀번호 오입력 3가지 문제를 겪고 해결함 — 상세 원인과 해결법은
+  README "13." 참고, **재사용 가능한 빌드 커맨드 전체는 바로 아래 "Android(TWA) 앱
+  빌드/업데이트 방법" 섹션**(부산 등 다른 PC에서도 그대로 사용 가능). 키스토어·비밀번호는
+  구글 드라이브(`Work/리툴스/android-signing`)에 백업 완료. **형이 해야 할 일**: Play Console에
+  `app-release-bundle.aab` 업로드 + 스토어 등록(Claude는 Play Console 계정 접근 권한 없음).
 - **[2026-08-19, 또또 이어서] ECOS 인증키 실제 발급·검증 + 버그 수정(울산).** 형이 ECOS에서
   인증키(`A44NSDI3DHSZJ1XNOXS7`)를 실제로 발급받아 전달 → curl로 직접 호출 검증하다가
   **요청 건수 부족 버그 발견**: 180일치 일별 데이터(~180건)를 요청하면서 건수를 100건으로만
@@ -68,7 +81,10 @@ apple-realty-settlement와 동일:
   500건으로 올려서 수정, 재검증 완료(178건 정상 수신, 최신값 2026-08-16자 2.75% 확인).
   로컬 `.env.local`에 키 등록(gitignore 대상이라 커밋 안 됨). **형이 해야 할 일**: 같은 키를
   Vercel 프로젝트 환경변수에도 등록해야 프로덕션에 반영됨(Claude는 Vercel 접근 권한 없음).
-  상세는 README "12-3." 참고.
+  상세는 README "12-3." 참고. **배포 반영까지 확인 완료**: env var 추가 시점이 직전 push보다
+  늦어서 최신 배포에 키가 안 들어가 있던 걸 Vercel 대시보드에서 Redeploy로 한 번 더 잡아줌 →
+  프로덕션 `/api/base-rate`가 `{"ratePercent":2.75,"effectiveDate":"2026-08-16","source":"ecos","stale":false}`로
+  실시간 응답하는 것까지 curl로 최종 검증함(2026-08-19).
 - **[2026-08-19, 또 이어서] 기준금리 하드코딩 → ECOS Open API 실시간 연동(울산).** 형이
   "MAX 플랜이니 토큰 걱정 말고 사람이 매번 확인 안 해도 되게 자동 갱신으로" 요청 → 신규
   `app/api/base-rate`(서버리스, ECOS 통계표 722Y001 호출, 6시간 캐시, 키 없거나 실패 시
@@ -128,6 +144,89 @@ apple-realty-settlement와 동일:
 
 README.md "6. 다음 단계 백로그" 섹션 참고 (명칭 변경, 디자인 리스타일, 앱인토스 SDK 연동,
 SNS 자동화 봇 등). 이 문서에 중복 기재하지 않음 — README가 최신 소스.
+
+## Android(TWA) 앱 빌드/업데이트 방법 — 로컬 PC 전용 실행 가이드
+
+**이 섹션은 Cowork 세션이 아니라 로컬 Windows PowerShell에서 사람이 직접 실행하는 용도입니다.**
+부산 등 다른 PC에서 이 저장소를 열었어도(= 이 문서를 git으로 받았어도) 아래 그대로 따라하면
+새 빌드를 만들 수 있습니다. 2026-08-20에 울산 세션에서 겪은 시행착오가 전부 반영돼 있습니다
+(README "13." 참고).
+
+### 사전 준비물
+
+- Node.js 설치돼 있는 Windows PC
+- **서명 키스토어**: `realtycalc-release.keystore` + `PASSWORD_DO_NOT_LOSE.txt` — 구글 드라이브
+  공유 폴더 `Work/리툴스/android-signing`에 백업돼 있음(PC마다 드라이브 문자는 다를 수 있으니
+  "내 드라이브"에서 직접 찾을 것). **이 키가 없으면 새로 만들면 안 됩니다** — Play Store는 앱마다
+  최초 등록한 서명 키만 계속 인정하므로, 다른 키로 서명하면 업데이트 업로드가 거부됩니다.
+
+### 1. Bubblewrap CLI 설치
+
+```powershell
+npm install -g @bubblewrap/cli
+```
+
+### 2. 빌드 폴더 준비 (키스토어를 로컬로 복사)
+
+```powershell
+mkdir C:\android-build -ErrorAction SilentlyContinue
+cd C:\android-build
+copy "G:\내 드라이브\Work\리툴스\android-signing\realtycalc-release.keystore" .
+copy "G:\내 드라이브\Work\리툴스\android-signing\PASSWORD_DO_NOT_LOSE.txt" .
+```
+(`G:\내 드라이브\...` 경로는 본인 PC의 실제 구글 드라이브 경로로 바꿀 것)
+
+### 3. `twa-manifest.json` 작성 — 반드시 아래 방법 그대로 (한글 깨짐 방지)
+
+콘솔에 한글(앱 이름 등)을 직접 타이핑/붙여넣기 하면 PowerShell 5.1이 잘못된 인코딩으로 읽어서
+깨집니다("부동산" → "遺?숈궛" 식). 아래처럼 Base64로 붙여넣어 바이트 그대로 저장하세요:
+
+```powershell
+cd C:\android-build
+$b64 = "ewogICJwYWNrYWdlSWQiOiAia3IucmV0b29scy5yZWFsdHljYWxjIiwKICAiaG9zdCI6ICJjYWxjLXJlYWx0eS52ZXJjZWwuYXBwIiwKICAibmFtZSI6ICLrtoDrj5nsgrAg6rOE7IKw6riwIChieSDrpqzslrzti7DrtoEpIiwKICAibGF1bmNoZXJOYW1lIjogIuu2gOuPmeyCsOqzhOyCsOq4sCIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgInRoZW1lQ29sb3IiOiAiIzBkM2I1MiIsCiAgIm5hdmlnYXRpb25Db2xvciI6ICIjMGQzYjUyIiwKICAiYmFja2dyb3VuZENvbG9yIjogIiNGMkY2RkEiLAogICJlbmFibGVOb3RpZmljYXRpb25zIjogZmFsc2UsCiAgInN0YXJ0VXJsIjogIi8iLAogICJpY29uVXJsIjogImh0dHBzOi8vY2FsYy1yZWFsdHkudmVyY2VsLmFwcC9pY29ucy9pY29uLTUxMi5wbmciLAogICJtYXNrYWJsZUljb25VcmwiOiAiaHR0cHM6Ly9jYWxjLXJlYWx0eS52ZXJjZWwuYXBwL2ljb25zL2ljb24tNTEyLW1hc2thYmxlLnBuZyIsCiAgInNwbGFzaFNjcmVlbkZhZGVPdXREdXJhdGlvbiI6IDMwMCwKICAic2lnbmluZ0tleSI6IHsKICAgICJwYXRoIjogIi4vcmVhbHR5Y2FsYy1yZWxlYXNlLmtleXN0b3JlIiwKICAgICJhbGlhcyI6ICJyZWFsdHljYWxjIgogIH0sCiAgImFwcFZlcnNpb25Db2RlIjogMSwKICAiYXBwVmVyc2lvbiI6ICIxLjAuMCIsCiAgInNob3J0Y3V0cyI6IFtdLAogICJnZW5lcmF0b3JBcHAiOiAiYnViYmxld3JhcC1jbGkiLAogICJ3ZWJNYW5pZmVzdFVybCI6ICJodHRwczovL2NhbGMtcmVhbHR5LnZlcmNlbC5hcHAvbWFuaWZlc3QuanNvbiIsCiAgImZhbGxiYWNrVHlwZSI6ICJjdXN0b210YWJzIiwKICAiZW5hYmxlU2l0ZVNldHRpbmdzU2hvcnRjdXQiOiB0cnVlLAogICJpc0Nocm9tZU9TT25seSI6IGZhbHNlLAogICJpc01ldGFRdWVzdCI6IGZhbHNlLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImZpbmdlcnByaW50cyI6IFsKICAgIHsKICAgICAgIm5hbWUiOiAicmVsZWFzZSIsCiAgICAgICJ2YWx1ZSI6ICJGNTozQzpCNTpEOToyODpDQjowMTo5MzowODpFQzpFODpENjpBRDoxMDpGRTpCOTpFOTo2NjpGMTowNjoyMTpERTpEMDowNDo5QzpDODpFNDo3NDpBMDpCMTo2Qjo0RiIKICAgIH0KICBdCn0K"
+[System.IO.File]::WriteAllBytes("C:\android-build\twa-manifest.json", [System.Convert]::FromBase64String($b64))
+
+# 검증 (인코딩 명시 필수)
+Get-Content twa-manifest.json -Raw -Encoding UTF8 | ConvertFrom-Json | Select-Object packageId, name, signingKey
+```
+`name`이 "부동산 계산기 (by 리얼티북)"으로 정상 출력되면 OK. 버전을 올려야 하는 업데이트 빌드라면
+이 JSON의 `appVersionCode`/`appVersion` 값을 원하는 값으로 바꾼 뒤 저장(또는 빌드 중 물어보는
+`versionName`에 새 버전 입력하면 자동으로 +1 됨).
+
+### 4. 빌드 실행
+
+```powershell
+bubblewrap build --manifest=twa-manifest.json
+```
+
+- "regenerate your project?" → 최초 빌드면 Yes, 이미 빌드해본 폴더 재사용이면 No
+- "versionName for the new App version" → 버전 입력 (또는 Enter로 기본값)
+- 키스토어/키 비밀번호 → `PASSWORD_DO_NOT_LOSE.txt` 안의 `GENERATED_KEYSTORE_PASSWORD=` **뒤의
+  값만** 입력 (라벨까지 같이 붙여넣지 말 것 — 이거 때문에 한 번 실패한 적 있음)
+
+**만약 `Could not reserve enough space for 1572864KB object heap` 에러가 나면** (Gradle 메모리
+문제, 물리 메모리 충분해도 발생 가능):
+
+```powershell
+(Get-Content gradle.properties) | Where-Object { $_ -ne "org.gradle.jvmargs=-Xmx1536m" } | Set-Content gradle.properties -Encoding UTF8
+Add-Content gradle.properties "`norg.gradle.jvmargs=-Xmx1024m -XX:MaxMetaspaceSize=256m"
+Add-Content gradle.properties "`norg.gradle.daemon=false"
+bubblewrap build --manifest=twa-manifest.json   # 다시 실행, regenerate는 No로
+```
+
+### 5. 결과물
+
+성공하면 같은 폴더에 `app-release-bundle.aab`(Play Console 업로드용)와
+`app-release-signed.apk`가 생성됩니다.
+
+### 6. Play Console 업로드 시 참고 정보
+
+- 패키지명: `kr.retools.realtycalc`
+- 앱 이름: 부동산 계산기 (by 리얼티북)
+- SHA256 인증서 지문(앱 서명 메뉴에서 대조):
+  `F5:3C:B5:D9:28:CB:01:93:08:EC:E8:D6:AD:10:FE:B9:E9:66:F1:06:21:DE:D0:04:9C:C8:E4:74:A0:B1:6B:4F`
+- `assetlinks.json`은 이미 저장소에 커밋돼 있어서(`public/.well-known/assetlinks.json`) 코드만
+  `git pull` 받으면 자동 포함됨 — 이 파일은 새로 안 만들어도 됨(키스토어를 안 바꾸는 한).
 
 ## 참고 — 브라우저 자동화 테스트 이슈 (2026-08-17, 이후 해소됨)
 
