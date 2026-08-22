@@ -11,6 +11,7 @@
 // ============================================================
 
 import { useEffect, useState } from "react";
+import { BASE_PATH } from "@/lib/basePath";
 
 const DISMISS_KEY = "rb-install-prompt-dismissed-at";
 const DISMISS_DAYS = 7;
@@ -63,7 +64,7 @@ export default function InstallPrompt() {
   useEffect(() => {
     // 서비스워커 등록은 배너 노출 여부와 무관하게 항상 시도한다(설치 가능 조건 충족용).
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+      navigator.serviceWorker.register(`${BASE_PATH}/sw.js`).catch(() => undefined);
     }
   }, []);
 

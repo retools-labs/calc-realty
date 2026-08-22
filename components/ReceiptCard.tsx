@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import { formatKRW } from "@/lib/calc";
+import { BASE_PATH } from "@/lib/basePath";
 
 export interface ReceiptLine {
   label: string;
@@ -68,7 +69,7 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
           세로 픽셀을 늘려 같은 카드 폭에서도 훨씬 선명하게 보이도록 했다. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/images/receipt-cta-v2.png"
+        src={`${BASE_PATH}/images/receipt-cta-v2.png`}
         alt="리얼티북 | 공인중개사 1초 정산장부 (2인 평생 무료) — 네이버에서 '리얼티북'을 검색하세요"
         className="block aspect-[73/23] w-full rounded-b-[11px] object-cover"
       />

@@ -7,6 +7,7 @@ import MovingCostCalculator from "@/components/MovingCostCalculator";
 import CapRateCalculator from "@/components/CapRateCalculator";
 import PyeongCalculator from "@/components/PyeongCalculator";
 import JeonseConversionCalculator from "@/components/JeonseConversionCalculator";
+import { BASE_PATH } from "@/lib/basePath";
 
 const PARTNER_URL = "https://apple-realty.vercel.app/partner";
 
@@ -78,7 +79,7 @@ function PartnerBanner() {
         />
 
         <img
-          src="/icons/rb-mark-white.png"
+          src={`${BASE_PATH}/icons/rb-mark-white.png`}
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute"

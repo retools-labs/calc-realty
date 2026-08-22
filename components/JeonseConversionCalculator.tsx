@@ -13,6 +13,7 @@ import {
 } from "@/lib/jeonseConversion";
 import { SegButton, WonInput, formatKoreanUnit } from "./ui";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
+import { BASE_PATH } from "@/lib/basePath";
 
 interface BaseRateInfo {
   ratePercent: number;
@@ -40,7 +41,7 @@ export default function JeonseConversionCalculator() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/base-rate")
+    fetch(`${BASE_PATH}/api/base-rate`)
       .then((res) => res.json())
       .then((data) => {
         if (cancelled) return;
