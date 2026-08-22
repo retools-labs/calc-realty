@@ -24,7 +24,10 @@
 **법정 상한요율 기준 부동산 계산기 모음(공개 웹앱)**. `apple-realty-settlement`(사무소 내부용,
 로그인 필요한 정산 시스템)와는 **완전히 별개의 프로젝트**입니다 — 이쪽은 로그인 없이 누구나
 쓰는 공개 유틸리티. 최종 목표는 토스 인앱(앱인토스) 미니앱으로 배포해서 광고 수익 + 애플부동산
-정산 시스템(apple-realty.vercel.app) 가입 유도 마중물로 쓰는 것.
+정산 시스템(realtybook.retools.kr, 2026-08-22 이전 apple-realty.vercel.app) 가입 유도 마중물로 쓰는 것.
+2026-08-22부터 retools.kr 메인 페이지의 RealtyBook 카드에서도 realtybook.retools.kr/calc로
+바로 연결되므로(아래 "/calc 서브패스 임베드" 참고), 계산기가 리얼티북 정식 서비스 URL 하위에도
+동시에 노출됨.
 
 기획 원본 문서(Gemini Spark 작성, 총괄 PM 역할): 구글독스
 "리얼티북 — 부동산 계산기 개발 및 마케팅 플랜"
@@ -37,14 +40,32 @@ v1.1 상단 입력폼 리디자인 + 3.6/3.7 추가는 README "12." 참고).** �
 
 ## 지금 살아있는 배포 상태
 
-- **Production 배포**: https://calc-realty.vercel.app
-- **GitHub**: https://github.com/xchanz-tech/calc-realty (Public, main 브랜치)
+- **Production 배포**: https://calc-realty.vercel.app (기본, 안드로이드 TWA 앱과 연결된 도메인 —
+  절대 이 도메인의 루트 라우팅 구조를 안 건드릴 것)
+- **GitHub**: https://github.com/retools-labs/calc-realty (Public, main 브랜치, 2026-08-22
+  개인 계정 `xchanz-tech`에서 조직 `retools-labs`로 이전됨)
   → main에 push하면 Vercel이 자동 배포
+- **⚠️ 2026-08-22 추가: `/calc` 서브패스 임베드 배포 (`calc-realty-embed`)**
+  같은 저장소를 바라보는 **별도의 두 번째 Vercel 프로젝트** `calc-realty-embed`
+  (팀 `asfm`, https://calc-realty-embed.vercel.app)가 생겼다. 이 프로젝트는 환경변수
+  `NEXT_PUBLIC_BASE_PATH=/calc`가 켜져 있고, `next.config.js`가 이 값을 읽어 Next.js
+  `basePath`로 적용한다(`lib/basePath.ts`의 `BASE_PATH` 상수도 `<img src>`, `fetch()`,
+  서비스워커 등록처럼 basePath가 자동으로 안 붙는 곳에 수동으로 붙이는 용도).
+  realtybook 저장소(`realtybook.retools.kr/calc`)가 이 `calc-realty-embed.vercel.app`을
+  rewrite로 프록시해서 쓴다. **주의: `next.config.js`의 `basePath` 설정은 두 배포(기존
+  calc-realty.vercel.app과 calc-realty-embed.vercel.app)가 같은 코드베이스를 공유하므로
+  절대 하드코딩하면 안 되고 반드시 `NEXT_PUBLIC_BASE_PATH` 환경변수 기반으로 유지할 것** —
+  안 그러면 TWA 앱이 연결된 calc-realty.vercel.app 루트가 깨진다. 새 페이지/컴포넌트를
+  추가할 때 절대경로(`/` 시작)로 이미지·API·링크를 참조해야 한다면 반드시 `BASE_PATH`를
+  앞에 붙일 것.
 - 로그인/DB 없음 — 계산은 전부 브라우저에서 즉시 처리. 단, 2026-08-19부터 예외 1건: 전월세
   전환율 계산기가 기준금리 실시간 조회용 서버리스 라우트(`app/api/base-rate`)를 씀 —
   `ECOS_API_KEY` 환경변수 필요(README "2." 참고, 없어도 폴백값으로 동작은 함)
 - 사업자등록증: 2026-08-18 발급 완료 (사업자등록번호 141-52-01181, `lib/retoolsInfo.ts`에 반영 —
   Footer/이용약관/개인정보처리방침/환불정책 페이지가 전부 이 값을 참조)
+- 2026-08-21부터: 우측 하단 채널톡(Channel Talk) CS 챗봇 위젯 연동(`lib/channelTalk.ts` +
+  `components/ChannelTalk.tsx`) — `NEXT_PUBLIC_CHANNEL_TALK_PLUGIN_KEY` 환경변수 필요
+  (README/아래 "채널톡 연동" 참고, 키 없으면 위젯만 조용히 비활성화되고 앱은 정상 동작)
 
 ## 작업 규칙
 
@@ -62,6 +83,17 @@ apple-realty-settlement와 동일:
 "11. 2026-08-18 작업 내역(부산)" / "12. 2026-08-19 작업 내역(울산)" / "13. 2026-08-20 작업
 내역(울산)" 섹션 참고. 요약:
 
+- **[2026-08-21] 채널톡(Channel Talk) CS 챗봇 위젯 연동(부산).** Gemini(총괄 PM)가 작성한
+  작업지시서를 형이 전달 → apple-realty-settlement와 함께 진행. 공식 SDK
+  `@channel.io/channel-web-sdk-loader`(v2) 사용, `lib/channelTalk.ts`(boot/shutdown/
+  showMessenger 래퍼) + `components/ChannelTalk.tsx`(마운트 시 1회 boot) 신설,
+  `app/layout.tsx`에 삽입. 익명 방문자 전용이라 `pluginKey`만 넘기고 memberId/profile은
+  안 씀(로그인 사용자 프로필 연동은 apple-realty-settlement 쪽). 두 프로젝트 `npx tsc
+  --noEmit` 클린 통과 확인. **형이 해야 할 일**: (1) channel.io 콘솔에서 플러그인 키 발급 →
+  `.env.local` 및 Vercel 프로젝트 환경변수에 `NEXT_PUBLIC_CHANNEL_TALK_PLUGIN_KEY` 등록
+  (Claude는 channel.io/Vercel 계정 접근 권한 없음), (2) 서포트봇 시나리오(FAQ 버튼, 리드
+  수집 폼)는 코드가 아니라 채널톡 관리자 콘솔(desk.channel.io)에서 직접 구성 — 아래 "채널톡
+  콘솔 설정 가이드" 참고.
 - **[2026-08-20] Android(TWA) 앱 패키징 + Play Store 출시 준비(울산).** 형이 calc-realty를
   구글 플레이스토어 단독 앱으로 출시 요청. 패키지명 `kr.retools.realtycalc`, 서명 키스토어
   생성(RSA 2048bit, alias `realtycalc`, 유효 10,000일 — **이후 업데이트마다 계속 재사용해야
@@ -241,6 +273,28 @@ bubblewrap build --manifest=twa-manifest.json   # 다시 실행, regenerate는 N
 직후 사용자 화면에는 이전 버전이 한 번 더 보일 수 있음. 배포했는데 반영이 안 된 것처럼
 보이면 버그로 의심하기 전에 먼저 강력 새로고침(`Ctrl+Shift+R`) 또는 DevTools → Application
 → Service Workers → Unregister를 안내할 것 (2026-08-18에 실제로 이 현상이 있었음).
+
+## 채널톡 콘솔 설정 가이드 (2026-08-21 추가, 코드 밖 작업 — 형이 직접 해야 함)
+
+코드(SDK 연동)는 완료돼 있고, 아래는 channel.io 관리자 콘솔(desk.channel.io)에서 직접
+구성해야 하는 부분. Claude는 콘솔 계정 접근 권한이 없어서 대신 해줄 수 없음.
+
+1. **플러그인 키 발급**: channel.io 로그인 → 설정 → 설치 연동 → Plugin Key 복사 →
+   `.env.local`과 Vercel 프로젝트 환경변수에 `NEXT_PUBLIC_CHANNEL_TALK_PLUGIN_KEY`로 등록.
+   apple-realty-settlement와 같은 채널(같은 키)을 써도 되고, 방문자 성격이 달라서
+   (계산기=비로그인 일반 방문자 vs 리얼티북=중개사 회원) 채널을 분리해도 됨 — 분리하면
+   상담 큐/통계가 섞이지 않는 장점, 합치면 관리 포인트가 하나로 줄어드는 장점.
+2. **서포트봇(자동응답) 시나리오** — 콘솔의 "챗봇/워크플로우" 메뉴에서 버튼형 FAQ로 구성:
+   - 중개보수 상한요율 안내 (주택 매매 0.4~0.7%, 임대차 0.3~0.6% 구간별 한도액 / 오피스텔
+     0.4~0.5% / 상가·토지 0.9% 이내 협의)
+   - 부가세(VAT) 계산 기준 (일반과세 10% vs 간이과세 4%, 현금영수증 발행)
+   - 특수 거래(분양권 기납입금+프리미엄, 상가 권리금 수수료 산정 방식)
+   - CTA: "소속 중개사 2인 평생 무료! 리얼티북 정산 시스템 알아보기" → apple-realty.vercel.app
+     가입 링크
+3. **부재중/미응답 시 연락처 자동 수집**: 콘솔의 "부재중 메시지" 또는 워크플로우 설정에서
+   상담원 부재중(야간·주말) 또는 일정 시간 미응답 시 "상담 답변 알림을 위해 휴대폰 번호를
+   남겨주세요" 입력 폼이 자동으로 뜨도록 구성. 수집된 번호로 카카오 알림톡/SMS 알림이
+   가려면 콘솔의 알림 설정도 함께 확인.
 
 ## 자세한 내용
 

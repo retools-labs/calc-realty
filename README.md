@@ -476,3 +476,24 @@ SHA256 인증서 지문(Play Console "앱 서명" 메뉴에서 대조용):
 계정 접근 권한 없음). 이후 앱 업데이트할 때 다시 빌드해야 하면, 이 CLAUDE.md의
 "Android(TWA) 앱 빌드/업데이트 방법" 섹션에 재사용 가능한 전체 커맨드가 있음(부산 등 다른 PC에서도
 그대로 사용 가능하도록 정리해둠).
+
+## 14. 2026-08-22 작업 내역 (부산 세션) — GitHub 조직 이전 + `/calc` 서브패스 임베드 배포
+
+- 저장소가 개인 계정 `xchanz-tech`에서 GitHub Organization **`retools-labs`**로 이전됨.
+  GitHub: https://github.com/retools-labs/calc-realty (기존 URL은 GitHub이 자동 리다이렉트).
+- **`realtybook.retools.kr/calc` 신설**을 위해 같은 저장소를 가리키는 **별도의 두 번째 Vercel
+  프로젝트 `calc-realty-embed`**를 만들고, 거기에만 `NEXT_PUBLIC_BASE_PATH=/calc` 환경변수를
+  설정함. `next.config.js`가 이 값을 읽어 Next.js `basePath`로 적용하도록 수정(`basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""`).
+  기존 `calc-realty.vercel.app`(루트, 안드로이드 TWA와 연결) 배포는 이 환경변수가 없어 그대로
+  루트로 동작 — **절대 영향받지 않음.**
+- 새로 만든 `lib/basePath.ts`의 `BASE_PATH` 상수를, Next.js `basePath`가 자동으로 못 붙이는
+  절대경로 참조(순수 `<img src="/...">`, `fetch("/...")`, `navigator.serviceWorker.register("/sw.js")`)
+  세 군데(`app/page.tsx`, `components/ReceiptCard.tsx`, `components/JeonseConversionCalculator.tsx`,
+  `components/InstallPrompt.tsx`)에 수동으로 붙여서 `/calc` 배포에서도 아이콘·API·서비스워커가
+  정상 작동하도록 수정함. **앞으로 절대경로(`/`로 시작)로 뭔가를 참조하는 코드를 추가할 때는
+  반드시 `BASE_PATH`를 앞에 붙일 것** — 안 그러면 `/calc` 배포에서만 조용히 깨진다(루트 배포는
+  `BASE_PATH`가 빈 문자열이라 티가 안 남).
+- realtybook 저장소(`realtybook.retools.kr`)의 `vercel.json`이 `/calc/:path*`를
+  `calc-realty-embed.vercel.app`으로 rewrite(프록시)해서 최종적으로 `realtybook.retools.kr/calc`가
+  뜨는 구조. retools.kr 메인 페이지("무엇을 만들고 있나요" 섹션 RealtyBook 카드)에서도 이제
+  `realtybook.retools.kr`로 직접 링크됨.
