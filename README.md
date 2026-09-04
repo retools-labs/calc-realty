@@ -464,7 +464,7 @@ Claude Design에서 PM 권고사항 반영한 "부동산 계산기 v1.1" 목업�
    (이 키스토어는 storepass=keypass로 동일하게 생성해뒀음).
 
 **최종 결과**: `app-release-bundle.aab` + `app-release-signed.apk` 로컬 빌드 성공
-(`C:\android-signing\`). 키스토어·비밀번호는 형이 구글 드라이브
+(`C:\android-build\`). 키스토어·비밀번호는 형이 구글 드라이브
 (`G:\내 드라이브\Work\리툴스\android-signing`, 본인 PC마다 드라이브 문자는 다를 수 있음)에
 백업 완료. `assetlinks.json`은 `git push` 완료, 프로덕션에서 라이브 확인함(커밋 `cee23bc`).
 
@@ -476,6 +476,49 @@ SHA256 인증서 지문(Play Console "앱 서명" 메뉴에서 대조용):
 계정 접근 권한 없음). 이후 앱 업데이트할 때 다시 빌드해야 하면, 이 CLAUDE.md의
 "Android(TWA) 앱 빌드/업데이트 방법" 섹션에 재사용 가능한 전체 커맨드가 있음(부산 등 다른 PC에서도
 그대로 사용 가능하도록 정리해둠).
+
+### 13-1. 2026-09-04 정정 — 폴더 이름과 서명 (지시 030 2-6 · 2-7)
+
+위 13절에 빌드 폴더가 `C:\android-signing` 으로 적혀 있었다. **그런 폴더는 없다.**
+이 잘못된 이름이 총괄 지시판(지시 029 4-1)에도 옮겨 적혀, 개발팀이 없는 폴더의 접근 권한을
+요청했다가 거절당하고 그것을 「권한이 안 나온다」로 보고하는 헛수고가 한 라운드 있었다.
+두 곳을 구분해 적는다.
+
+| 무엇 | 어디 |
+| --- | --- |
+| TWA 빌드 프로젝트 (build.gradle, twa-manifest.json, 키스토어, 서명 스크립트) | `C:\android-build\` |
+| 키스토어 백업 **뿐** (빌드 프로젝트 없음) | 구글 드라이브 `Work\리툴스\android-signing\` |
+
+**번들에 서명이 붙지 않던 원인**: `app\build.gradle` 의 `buildTypes.release` 에 `minifyEnabled`
+만 있고 `signingConfigs` 블록이 어디에도 없다. 그래서 Gradle 이 서명 없는 `.aab` 와
+`app-release-unsigned.apk` 를 낸다. 8월에 올린 `app-release-bundle.aab` 도 서명 블록이 없었고
+Play Console 이 거부했다.
+
+**`build.gradle` 을 고치지 않는다** (총괄 판정, 지시 030 2-6). `signingConfigs` 를 넣어도
+`bubblewrap update` 가 파일을 다시 만들면서 지운다. 지워지는 고침은 고침이 아니다.
+
+**대신 `C:\android-build\서명하기.ps1` 을 쓴다.** 빌드가 끝난 뒤 이 스크립트를 실행하면
+`app\build\outputs\bundle\release\app-release.aab` 에 릴리스 키로 서명을 붙여
+`C:\android-build\app-release-signed-bundle.aab` 를 만든다. Play Console 에는 **이 파일**을
+올린다. 빌드 산출물을 그대로 올리면 안 된다.
+
+스크립트가 하는 일:
+
+- 비밀번호를 `PASSWORD_DO_NOT_LOSE.txt` 에서 **직접 읽는다**. 사람이 옮겨 치지 않는다.
+  1판에서 손으로 입력했다가 오타로 `keystore password was incorrect` 가 났다. 23자에 대소문자가
+  섞여 있고 구분 기호가 없어 틀리기 쉽다.
+- 서명 뒤 `jarsigner -verify` 를 돌린다.
+- **번들을 zip 으로 열어 `META-INF/MANIFEST.MF` · `META-INF/*.SF` · 인증서(`.RSA`/`.DSA`/`.EC`)
+  세 종류를 세고, 하나라도 없으면 소리내어 실패하고 종료 코드 1 을 낸다.**
+  `jarsigner -verify` 만으로는 모자란다. 서명이 없는 파일에도 0 을 돌려주고 「jar is unsigned」
+  라고만 적는 판이 있다. 이번에 사람이 번들을 열어 잡은 것을 스크립트가 잡게 한 것이다.
+  실측: 서명본 468항목(MANIFEST 1 · SF 1 · 인증서 1) / 미서명본 465항목(셋 다 0).
+
+재빌드는 웹 내용이 바뀔 때 필요한 것이 아니다. TWA 는 웹사이트를 띄우는 껍데기라 번들 안에
+웹 내용이 없다. 재빌드가 필요한 때는 시작 주소·패키지명·아이콘·versionCode 가 바뀔 때다.
+그리고 **재빌드할 때마다 서명이 다시 빠지므로 서명하기.ps1 을 다시 돌려야 한다.**
+
+업로드 값: 패키지 `kr.retools.realtycalc` · versionName 1.0.0 · versionCode 2.
 
 ## 14. 2026-08-22 작업 내역 (부산 세션) — GitHub 조직 이전 + `/calc` 서브패스 임베드 배포
 
