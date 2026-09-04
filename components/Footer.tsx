@@ -1,5 +1,6 @@
 import RetoolsMark from "./RetoolsMark";
 import { POLICY_BASE_URL, RETOOLS_INFO } from "@/lib/retoolsInfo";
+import { BASE_PATH } from "@/lib/basePath";
 
 // 이 계산기는 결제와 로그인이 없는 유입 도구지만, 방문자가 뒤에 실제 사업자가 있다는
 // 것을 알 수 있도록 리얼티북 본체와 같은 사업자정보를 붙여 둔다. 전자상거래법 제10조가
@@ -36,7 +37,11 @@ export default function Footer() {
             이용약관
           </a>
           <span aria-hidden>·</span>
-          <a href={`${POLICY_BASE_URL}/privacy`} className="hover:text-[#0d3b52] hover:underline">
+          {/* [2026-09-05 R-20] 계산기는 제 방침을 쓴다. 리얼티북 방침을 가리키면 안 된다.
+              구글 플레이는 앱 하나에 방침 하나를 보고, 심사자와 이용자가 앱 화면에서 바로
+              닿는 곳이 이 링크다. 리얼티북 방침은 결제와 개인정보 수집이 있는 다른 서비스의
+              것이라, 그것을 보여 주면 「이 앱은 수집하지 않습니다」와 어긋난다. */}
+          <a href={`${BASE_PATH}/privacy`} className="hover:text-[#0d3b52] hover:underline">
             개인정보처리방침
           </a>
           <span aria-hidden>·</span>

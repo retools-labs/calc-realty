@@ -21,7 +21,7 @@
 // 스크립트뿐 아니라 Vercel 빌드까지 막아 준다.
 // ============================================================
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { POLICY_BASE_URL, RETOOLS_INFO } from "../lib/retoolsInfo";
 
@@ -85,6 +85,26 @@ function 훑기(dir: string) {
   }
 }
 for (const d of 대상폴더) 훑기(path.resolve(process.cwd(), d));
+
+// 4) 계산기 전용 개인정보처리방침이 제자리에 있는가
+//    [2026-09-05 R-20] 구글 플레이에 낸 방침 URL 이 calc-realty.vercel.app/privacy 다.
+//    이 페이지가 없어지면 크롤러가 404 를 읽고 앱이 반려된다. 등재한 주소가 죽는 것은
+//    값이 틀린 것과 같은 등급의 사고이므로 같은 자리에서 막는다.
+const 방침페이지 = path.resolve(process.cwd(), "app", "privacy", "page.tsx");
+if (!existsSync(방침페이지)) {
+  문제.push(
+    "app/privacy/page.tsx 가 없습니다. 구글 플레이에 낸 방침 URL(/privacy)이 404 가 됩니다"
+  );
+}
+
+//    푸터의 개인정보처리방침 링크는 계산기 제 방침을 가리켜야 한다. 리얼티북 방침
+//    (POLICY_BASE_URL)을 가리키면 심사자와 이용자가 이 앱과 무관한 문서를 보게 된다.
+const 푸터 = readFileSync(path.resolve(process.cwd(), "components", "Footer.tsx"), "utf8");
+if (푸터.includes("${POLICY_BASE_URL}/privacy")) {
+  문제.push(
+    "components/Footer.tsx 의 개인정보처리방침 링크가 리얼티북 방침을 가리킵니다. `${BASE_PATH}/privacy` 로 적으십시오"
+  );
+}
 
 if (문제.length) {
   console.error("");
