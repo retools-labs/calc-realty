@@ -4,15 +4,19 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "tsx scripts/check-retools-info.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "check:info": "tsx scripts/check-retools-info.ts",
     "verify:calc": "tsx scripts/verify-calc.mjs",
     "verify:calc2": "tsx scripts/verify-calc2.mjs"
   },
   "dependencies": {
+    "@channel.io/channel-web-sdk-loader": "^2.0.2",
     "html2canvas": "^1.4.1",
     "next": "14.2.35",
+    "posthog-js": "^1.426.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

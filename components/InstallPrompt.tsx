@@ -12,6 +12,7 @@
 
 import { useEffect, useState } from "react";
 import { BASE_PATH } from "@/lib/basePath";
+import { track } from "@/lib/analytics";
 
 const DISMISS_KEY = "rb-install-prompt-dismissed-at";
 const DISMISS_DAYS = 7;
@@ -87,6 +88,9 @@ export default function InstallPrompt() {
     }
 
     function handleAppInstalled() {
+      // [2026-09-04 R-11] 홈 화면 설치는 다시 찾아올 사람이라는 신호다.
+      // 구글 플레이 앱(TWA)과는 다른 경로이므로 따로 센다.
+      track("pwa_installed");
       markDismissed();
       setVisible(false);
     }
@@ -100,6 +104,7 @@ export default function InstallPrompt() {
   }, []);
 
   function handleClose() {
+    track("pwa_install_banner_dismissed", { platform });
     markDismissed();
     setVisible(false);
   }
@@ -110,6 +115,7 @@ export default function InstallPrompt() {
     try {
       await deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
+      track("pwa_install_prompt_answered", { outcome });
       if (outcome === "accepted") markDismissed();
     } finally {
       setInstalling(false);

@@ -3,6 +3,8 @@ import { IBM_Plex_Sans_KR, Sora } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import Footer from "@/components/Footer";
+import ChannelTalk from "@/components/ChannelTalk";
+import Analytics from "@/components/Analytics";
 
 // design-preview: 마스터플랜 4장 타이포그래피 스펙(영문/숫자 Sora, 국문 IBM Plex Sans KR).
 const sora = Sora({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-sora" });
@@ -49,6 +51,8 @@ export default function RootLayout({
         {children}
         <Footer />
         <InstallPrompt />
+        <ChannelTalk />
+        <Analytics />
       </body>
     </html>
   );

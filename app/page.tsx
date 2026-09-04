@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import BrokerageFeeCalculator from "@/components/BrokerageFeeCalculator";
 import ProrateCalculator from "@/components/ProrateCalculator";
 import MovingCostCalculator from "@/components/MovingCostCalculator";
@@ -8,8 +8,14 @@ import CapRateCalculator from "@/components/CapRateCalculator";
 import PyeongCalculator from "@/components/PyeongCalculator";
 import JeonseConversionCalculator from "@/components/JeonseConversionCalculator";
 import { BASE_PATH } from "@/lib/basePath";
+import { track } from "@/lib/analytics";
+import { POLICY_BASE_URL } from "@/lib/retoolsInfo";
 
-const PARTNER_URL = "https://apple-realty.vercel.app/partner";
+// [2026-09-04 R-18] 리얼티북의 옛 도메인을 직접 가리키고 있었다. 푸터의 약관 링크와
+// 같은 문제인데 지시에는 이 한 줄이 빠져 있어 함께 잡는다. 옛 주소도 아직 열리기는
+// 하지만, 정본 대장에서 사라져야 할 이름이 대외 화면에 남아 있으면 언젠가 그 주소가
+// 서류로 옮겨 적힌다. 주소는 lib/retoolsInfo.ts 한 곳에서만 정한다.
+const PARTNER_URL = `${POLICY_BASE_URL}/partner`;
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -50,6 +56,7 @@ function PartnerBanner() {
         href={PARTNER_URL}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => track("partner_banner_clicked")}
         className="relative block overflow-hidden transition active:scale-[0.99]"
         style={{
           borderRadius: 24,
@@ -222,6 +229,31 @@ export default function Home() {
   const [tab, setTab] = useState<CalcTab>("fee");
   const [mode, setMode] = useState<Mode>("customer");
 
+  // [2026-09-04 R-11] 「계산까지 가는가」를 재는 자리.
+  //
+  // 이 계산기들에는 「계산하기」 버튼이 없다. 값을 넣는 즉시 결과가 다시 그려진다.
+  // 그래서 결과에 도달했다는 신호는 버튼 클릭이 아니라 「의미 있는 값을 실제로
+  // 넣었는가」다. 계산기 여섯 개를 각각 고치는 대신 담는 영역에서 입력을 한 번만
+  // 받아 탭별로 첫 입력을 남긴다. 계산기 쪽 코드는 건드리지 않는다.
+  const engagedTabs = useRef<Set<CalcTab>>(new Set());
+
+  function selectTab(next: CalcTab) {
+    setTab(next);
+    track("calc_tab_selected", { tab: next, mode });
+  }
+
+  function selectMode(next: Mode) {
+    setMode(next);
+    track("calc_mode_selected", { mode: next, tab });
+  }
+
+  // 입력 이벤트는 위로 올라오므로(버블링) 담는 div 에서 한 번만 받으면 된다.
+  function handleCalcInput() {
+    if (engagedTabs.current.has(tab)) return;
+    engagedTabs.current.add(tab);
+    track("calc_engaged", { tab, mode });
+  }
+
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
       <div className="mx-auto mt-6 max-w-md px-4">
@@ -247,7 +279,7 @@ export default function Home() {
               <button
                 key={m.value}
                 type="button"
-                onClick={() => setMode(m.value)}
+                onClick={() => selectMode(m.value)}
                 className={`rounded-xl px-2 py-2.5 text-xs font-semibold transition sm:text-sm ${
                   mode === m.value ? "bg-navy text-[#f5c433] shadow-sm" : "text-[#8B95A1]"
                 }`}
@@ -263,7 +295,7 @@ export default function Home() {
             <button
               key={t.value}
               type="button"
-              onClick={() => setTab(t.value)}
+              onClick={() => selectTab(t.value)}
               className={`flex flex-col items-center gap-1 rounded-2xl px-1 py-3 text-[11px] font-semibold transition sm:text-xs ${
                 tab === t.value ? "bg-navy text-white shadow-sm" : "bg-white text-[#4E5968] shadow-sm"
               }`}
@@ -274,7 +306,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-3">
+        <div className="mt-3" onInput={handleCalcInput}>
           {tab === "fee" && <BrokerageFeeCalculator mode={mode} />}
           {tab === "prorate" && <ProrateCalculator mode={mode} />}
           {tab === "movingCost" && <MovingCostCalculator />}

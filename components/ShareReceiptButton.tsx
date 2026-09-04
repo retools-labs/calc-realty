@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type RefObject } from "react";
+import { track } from "@/lib/analytics";
 
 interface Props {
   targetRef: RefObject<HTMLElement>;
@@ -27,6 +28,9 @@ export default function ShareReceiptButton({ targetRef, fileName = "리얼티북
 
   async function handleClick() {
     if (!targetRef.current) return;
+    // [2026-09-04 R-11] 여기까지 온 사람은 계산 결과를 실제로 챙겨 간 사람이다.
+    // 계산기 여섯 개가 이 버튼 하나를 함께 쓰므로 파일 이름으로 어느 계산기인지 구분한다.
+    track("receipt_share_started", { fileName });
     setBusy(true);
     setError(null);
     try {
@@ -55,6 +59,7 @@ export default function ShareReceiptButton({ targetRef, fileName = "리얼티북
       if (canUseShare) {
         try {
           await navigator.share({ files: [file], title: "리얼티북 계산 결과" });
+          track("receipt_shared", { fileName, via: "web_share" });
           return;
         } catch (shareErr) {
           // 사용자가 공유시트에서 직접 취소한 경우(AbortError)는 조용히 종료.
@@ -63,7 +68,9 @@ export default function ShareReceiptButton({ targetRef, fileName = "리얼티북
         }
       }
       downloadBlob(blob);
+      track("receipt_shared", { fileName, via: "download" });
     } catch {
+      track("receipt_share_failed", { fileName });
       setError("이미지 생성에 실패했어요. 다시 시도해주세요.");
     } finally {
       setBusy(false);
