@@ -70,7 +70,7 @@ export default function PyeongCalculator() {
           <div className="flex items-center rounded-xl border border-[#E5E8EB] bg-white px-4 py-3 focus-within:border-cobalt">
             <input
               inputMode="decimal"
-              className="w-full bg-transparent font-sora text-xl font-bold text-navy outline-none placeholder:font-sans placeholder:text-base placeholder:font-normal placeholder:text-[#B0B8C1]"
+              className="w-full bg-transparent text-xl font-bold text-navy outline-none placeholder:text-base placeholder:font-normal placeholder:text-[#B0B8C1]"
               placeholder={areaUnit === "pyeong" ? "예: 25.7" : "예: 84.97"}
               value={areaRaw}
               onChange={(e) => setAreaRaw(e.target.value)}

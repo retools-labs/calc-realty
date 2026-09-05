@@ -260,7 +260,7 @@ export default function Home() {
       <div className="mx-auto mt-6 max-w-md px-4">
         <div className="flex items-center justify-between px-1">
           <span className="flex items-center gap-2">
-            <span className="font-sora text-xl font-extrabold text-navy">부동산 계산기</span>
+            <span className="text-xl font-extrabold text-navy">부동산 계산기</span>
             <span className="text-sm font-semibold text-[#8B95A1]">v1.1</span>
           </span>
           <span className="rounded-full bg-gradient-to-b from-[#f8d055] to-[#f0b81f] px-2.5 py-1 text-[11px] font-extrabold text-navy shadow-sm">

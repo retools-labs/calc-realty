@@ -1,19 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans_KR, Sora } from "next/font/google";
 import "./globals.css";
 import InstallPrompt from "@/components/InstallPrompt";
 import Footer from "@/components/Footer";
 import ChannelTalk from "@/components/ChannelTalk";
 import Analytics from "@/components/Analytics";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
-
-// design-preview: 마스터플랜 4장 타이포그래피 스펙(영문/숫자 Sora, 국문 IBM Plex Sans KR).
-const sora = Sora({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-sora" });
-const plexKr = IBM_Plex_Sans_KR({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-plex-kr",
-});
 
 export const metadata: Metadata = {
   title: `${PRODUCT_NAME_SHORT} | 부동산 중개보수 계산기`,
@@ -47,8 +38,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className={`${sora.variable} ${plexKr.variable}`}>
-      <body className="min-h-screen bg-toss-bg text-[#191F28] font-plexkr">
+    <html lang="ko">
+      <head>
+        {/* [지시 035 5-1-4] 글꼴을 불러오는 자리는 여기 한 곳입니다. 장부와 같은 판을 씁니다.
+            next/font 를 쓰지 않는 이유: 장부는 CDN 링크로 같은 글꼴을 불러오고 있고,
+            두 제품이 서로 다른 방식으로 같은 글꼴을 받으면 판올림 때 한쪽만 남습니다. */}
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+      </head>
+      <body className="min-h-screen bg-bg font-sans text-ink">
         {children}
         <Footer />
         <InstallPrompt />

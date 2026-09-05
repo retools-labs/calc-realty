@@ -32,7 +32,7 @@ export function ResultHeadline({
   return (
     <div>
       <div className="text-sm font-medium text-[#7FA3C7]">{label}</div>
-      <div className="mt-1.5 flex items-baseline gap-1 font-sora">
+      <div className="mt-1.5 flex items-baseline gap-1">
         <span className="text-[34px] font-extrabold leading-none tracking-tight text-cyan">{value}</span>
         {suffix && <span className="text-lg font-bold text-cyan">{suffix}</span>}
       </div>
@@ -83,7 +83,7 @@ export function ResultHighlightRow({
       <span
         className={
           emphasize
-            ? "font-sora text-xl font-extrabold text-cyan"
+            ? "text-xl font-extrabold text-cyan"
             : "text-sm font-semibold text-white"
         }
       >
