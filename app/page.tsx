@@ -8,6 +8,7 @@ import CapRateCalculator from "@/components/CapRateCalculator";
 import PyeongCalculator from "@/components/PyeongCalculator";
 import JeonseConversionCalculator from "@/components/JeonseConversionCalculator";
 import { BASE_PATH } from "@/lib/basePath";
+import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import { track } from "@/lib/analytics";
 import { POLICY_BASE_URL } from "@/lib/retoolsInfo";
 
@@ -104,7 +105,7 @@ function PartnerBanner() {
                 className="whitespace-nowrap"
                 style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1.6, color: "#f5c433" }}
               >
-                REALTYBOOK
+                {PRODUCT_NAME_SHORT}
               </span>
             </div>
 
@@ -152,7 +153,7 @@ function PartnerBanner() {
               wordBreak: "keep-all",
             }}
           >
-            리얼티북과 함께 만드는 성공적인 중개 파트너십!
+            {PRODUCT_NAME_SHORT}과 함께 만드는 성공적인 중개 파트너십!
           </p>
 
           <p

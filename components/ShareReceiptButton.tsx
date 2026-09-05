@@ -2,6 +2,7 @@
 
 import { useState, type RefObject } from "react";
 import { track } from "@/lib/analytics";
+import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 
 interface Props {
   targetRef: RefObject<HTMLElement>;
@@ -11,7 +12,7 @@ interface Props {
 // ReceiptCard를 이미지(PNG)로 캡처해서, 모바일에서는 카카오톡 등으로 바로 공유(Web Share API),
 // 지원 안 되는 환경(대부분의 PC 브라우저)에서는 파일 다운로드로 대체한다.
 // html2canvas는 번들 크기가 있어 클릭 시점에 동적 import로 불러온다.
-export default function ShareReceiptButton({ targetRef, fileName = "리얼티북_계산결과.png" }: Props) {
+export default function ShareReceiptButton({ targetRef, fileName = `${PRODUCT_NAME_SHORT}_계산결과.png` }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +59,7 @@ export default function ShareReceiptButton({ targetRef, fileName = "리얼티북
 
       if (canUseShare) {
         try {
-          await navigator.share({ files: [file], title: "리얼티북 계산 결과" });
+          await navigator.share({ files: [file], title: `${PRODUCT_NAME_SHORT} 계산 결과` });
           track("receipt_shared", { fileName, via: "web_share" });
           return;
         } catch (shareErr) {

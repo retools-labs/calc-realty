@@ -5,6 +5,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import Footer from "@/components/Footer";
 import ChannelTalk from "@/components/ChannelTalk";
 import Analytics from "@/components/Analytics";
+import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 
 // design-preview: 마스터플랜 4장 타이포그래피 스펙(영문/숫자 Sora, 국문 IBM Plex Sans KR).
 const sora = Sora({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-sora" });
@@ -15,7 +16,7 @@ const plexKr = IBM_Plex_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "리얼티북 | 부동산 중개보수 계산기",
+  title: `${PRODUCT_NAME_SHORT} | 부동산 중개보수 계산기`,
   description:
     "매매·전세·월세 부동산 중개보수(복비)를 법정 상한요율 기준으로 바로 계산해보세요. 일반과세/간이과세 부가세까지 한번에.",
   manifest: "/manifest.json",

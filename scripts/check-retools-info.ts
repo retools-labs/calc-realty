@@ -24,6 +24,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { POLICY_BASE_URL, RETOOLS_INFO } from "../lib/retoolsInfo";
+import { PRODUCT_NAME, PRODUCT_NAME_LEGACY, PRODUCT_NAME_SHORT } from "../lib/productName";
 
 /** 「[리툴스] 대외 표기 정본 대장 (상시 갱신)」 4절 사업자 정보에서 옮겨 적은 값. */
 const 정본 = {
@@ -104,6 +105,68 @@ if (푸터.includes("${POLICY_BASE_URL}/privacy")) {
   문제.push(
     "components/Footer.tsx 의 개인정보처리방침 링크가 리얼티북 방침을 가리킵니다. `${BASE_PATH}/privacy` 로 적으십시오"
   );
+}
+
+// 5) 장부 제품 이름이 realtybook 저장소의 정본과 같은가
+//    [2026-09-05 R-20] 「리얼티북」에서 「오늘하루 장부-부동산중개」로 바꿨다. 정본은
+//    realtybook 저장소의 src/lib/productName.ts 이고, 저장소가 달라 코드로 묶이지 않는다.
+//    사업자정보와 같은 문제이므로 같은 자리에서 막는다.
+const 제품명정본 = {
+  PRODUCT_NAME: "오늘하루 장부-부동산중개",
+  PRODUCT_NAME_SHORT: "오늘하루 장부",
+  PRODUCT_NAME_LEGACY: "리얼티북",
+} as const;
+const 지금제품명 = { PRODUCT_NAME, PRODUCT_NAME_SHORT, PRODUCT_NAME_LEGACY };
+for (const [key, expected] of Object.entries(제품명정본)) {
+  const actual = (지금제품명 as Record<string, string>)[key];
+  if (actual !== expected) {
+    문제.push(`productName.${key}\n    지금  ${actual}\n    정본  ${expected}`);
+  }
+}
+
+//    이름을 코드에 직접 적으면 다음 변경 때 이 자리를 빠뜨린다. 이 회사는 한 달에
+//    제품 이름을 두 번 바꿨다.
+const 제품명파일 = path.join("lib", "productName.ts");
+const 옛이름허용: Record<string, string> = {
+  [path.join("lib", "retoolsInfo.ts")]: "상표 출원명. 40-2026-0168198 은 「리얼티북」으로 낸 것이다",
+  [path.join("components", "ReceiptCard.tsx")]:
+    "CTA 이미지 안에 박힌 글자를 alt 가 그대로 적는다. 이미지 교체는 디자인실 몫이다",
+  [path.join("components", "Footer.tsx")]: "R-20 이전 경위를 적어 둔 주석",
+  [제품명파일]: "옛 이름을 상수로 정의하는 자리",
+};
+function 이름훑기(dir: string) {
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name);
+    if (statSync(full).isDirectory()) {
+      이름훑기(full);
+      continue;
+    }
+    if (!/\.(ts|tsx)$/.test(name)) continue;
+    const rel = path.relative(process.cwd(), full);
+    // 주석은 경위 기록이라 옛 이름이 남아 있는 것이 맞다. 지우고 본문만 검사한다.
+    // 문자열 안의 "//" 를 주석으로 잘못 보면 그 뒤가 검사에서 빠지므로, 줄 전체가
+    // 주석인 줄과 블록 주석만 지운다. 덜 지우는 쪽으로 틀리게 만들었다.
+    const text = readFileSync(full, "utf8")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .split("\n")
+      .filter((line) => !/^\s*(\/\/|\*)/.test(line))
+      .join("\n");
+    if (rel !== 제품명파일 && text.includes(PRODUCT_NAME_SHORT)) {
+      문제.push(`${rel} 에 제품 이름이 직접 적혀 있습니다. lib/productName.ts 의 상수를 쓰십시오`);
+    }
+    if (!옛이름허용[rel] && text.includes(PRODUCT_NAME_LEGACY)) {
+      문제.push(`${rel} 에 옛 이름 ${PRODUCT_NAME_LEGACY} 이 남아 있습니다`);
+    }
+  }
+}
+for (const d of 대상폴더) 이름훑기(path.resolve(process.cwd(), d));
+
+//    manifest 는 정적 파일이라 상수를 읽지 못한다. 홈 화면에 뜨는 이름이라 어긋나면 눈에 띈다.
+const 계산기manifest = JSON.parse(
+  readFileSync(path.resolve(process.cwd(), "public", "manifest.json"), "utf8")
+) as { name?: string };
+if (!계산기manifest.name?.includes(PRODUCT_NAME_SHORT)) {
+  문제.push(`public/manifest.json 의 name 에 「${PRODUCT_NAME_SHORT}」 이 없습니다: ${계산기manifest.name}`);
 }
 
 if (문제.length) {

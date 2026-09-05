@@ -67,6 +67,12 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
       {/* v2: 2줄(가로로 넓은) 배너는 모바일 폭으로 축소되면 글자 높이가 너무 작아져
           뭉개져 보였다. 클로드 디자인에서 3줄 세로형으로 다시 뽑아 줄당 확보되는
           세로 픽셀을 늘려 같은 카드 폭에서도 훨씬 선명하게 보이도록 했다. */}
+      {/* [R-20 2026-09-05] 제품명이 「오늘하루 장부-부동산중개」로 바뀌었으나 이 이미지는
+          글자가 그림 안에 박혀 있어 코드로 바꿀 수 없다. alt 는 이미지에 실제로 적힌 글을
+          적는 자리이므로 그림과 다르게 쓰지 않는다. 다르게 쓰면 눈으로 보는 사람과 화면을
+          읽어 주는 사람에게 서로 다른 것이 전달된다.
+          이미지 교체는 디자인실 몫이고 현황판에 올렸다. 새 이미지가 오면 이 주석과 alt 를
+          함께 고친다. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`${BASE_PATH}/images/receipt-cta-v2.png`}

@@ -6,6 +6,7 @@ import { calcLeaseMovingCost, calcSaleMovingCost, type HouseCount } from "@/lib/
 import { SegButton, WonInput } from "./ui";
 import ReceiptCard from "./ReceiptCard";
 import ShareReceiptButton from "./ShareReceiptButton";
+import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import Modal from "./Modal";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
 
@@ -282,7 +283,7 @@ export default function MovingCostCalculator() {
           lines={lines}
           total={total}
         />
-        <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_이사비용_영수증.png" />
+        <ShareReceiptButton targetRef={receiptRef} fileName={`${PRODUCT_NAME_SHORT}_이사비용_영수증.png`} />
       </Modal>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">

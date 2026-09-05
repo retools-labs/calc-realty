@@ -11,6 +11,7 @@ import {
 import { SegButton, WonInput } from "./ui";
 import ReceiptCard from "./ReceiptCard";
 import ShareReceiptButton from "./ShareReceiptButton";
+import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import Modal from "./Modal";
 import { ResultCard, ResultDivider, ResultHeadline, ResultHighlight, ResultHighlightRow, ResultRow } from "./ResultCard";
 
@@ -289,7 +290,7 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
           total={result.totalWithVat}
           totalLabel="최종 지급액"
         />
-        <ShareReceiptButton targetRef={receiptRef} fileName="리얼티북_복비계산_영수증.png" />
+        <ShareReceiptButton targetRef={receiptRef} fileName={`${PRODUCT_NAME_SHORT}_복비계산_영수증.png`} />
       </Modal>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
