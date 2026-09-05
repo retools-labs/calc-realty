@@ -520,6 +520,50 @@ Play Console 이 거부했다.
 
 업로드 값: 패키지 `kr.retools.realtycalc` · versionName 1.0.0 · versionCode 2.
 
+### 13-2. 2026-09-05 — 앱 이름은 두 파일에 있다 · 재빌드가 돌았는지 먼저 본다
+
+**앱 이름이 두 곳에 적혀 있고, 실제로 컴파일되는 것은 `app\build.gradle` 쪽이다.**
+
+| 파일 | 무엇 |
+| --- | --- |
+| `twa-manifest.json` 의 `"name"` | bubblewrap 이 읽는 원본 |
+| `app\build.gradle` 의 `twaManifest.name` | Gradle 이 `resValue "string", "appName"` 으로 굽는 값 |
+
+`bubblewrap update` 를 돌리면 앞의 것에서 뒤의 것이 다시 만들어지지만, 그것을 돌리지 않고
+파일만 고치면 **앞쪽만 새 이름이 되고 앱에는 옛 이름이 박힌다.** 이름을 바꿀 때는 두 곳을
+같이 고친다. 스플래시 배경색(`backgroundColor`)도 같은 성질이다.
+
+**빌드가 서지 않는 이유가 둘이고 둘 다 저장소 밖에 있다.**
+
+1. **`JAVA_HOME` 이 없다.** `gradlew.bat` 을 그냥 돌리면
+   `ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH` 로 선다.
+   이 PC 의 자바는 bubblewrap 이 `%USERPROFILE%\.bubblewrap` 아래에 받아 둔 것이라 PATH 에 없다.
+   **Gradle 은 JRE 가 아니라 JDK 가 필요하다** — `java.exe` 옆에 `javac.exe` 가 있어야 한다.
+2. **`local.properties` 가 없으면 안드로이드 SDK 를 못 찾는다.** 저장소에 들어가지 않는 파일이라
+   PC 를 바꾸면 또 없다. 이 PC 의 SDK 는 `C:\Users\xchan\.bubblewrap\android_sdk` 이고
+   `C:\android-build\local.properties` 에 `sdk.dir` 로 적어 두었다.
+
+그래서 **`C:\android-build\빌드하기.ps1`** 을 만들었다. 서명하기.ps1 이 `jarsigner` 를 찾는 것과
+같은 방법으로 JDK 를 찾아 그 창에서만 `JAVA_HOME` 을 잡고 빌드를 돌린다. 대표가 환경변수를
+손볼 것이 없다. 빌드가 끝나면 이어서 서명할지 물어본다.
+
+```
+cd C:\android-build
+.\빌드하기.ps1
+```
+
+**2026-09-05 에 실제로 난 일**: 이름을 고치고 재빌드를 돌렸는데 위 1번(JAVA_HOME)으로 빌드가 서지 않았고,
+그 사실을 모른 채 **8월에 만든 옛 번들에 서명이 다시 붙었다.** 서명 확인은 통과했다. 서명은 정말로
+붙었기 때문이다. 옛 이름이 박힌 번들이 Play Console 에 올라갈 뻔했다.
+
+**서명이 붙었는지만 보고 무엇에 붙었는지는 안 본 것이 문제였다.** 그래서 `서명하기.ps1` 이 서명하기
+**전에** 둘을 더 본다.
+
+- 번들이 `app\build.gradle` 보다 새것인가. 옛것이면 재빌드가 안 돈 것이므로 서명하지 않고 멈춘다.
+- 번들 안의 앱 이름이 `twa-manifest.json` 의 이름과 같은가. 다르면 서명하지 않고 멈춘다.
+
+★ **확인은 「됐는가」가 아니라 「무엇이 됐는가」를 보아야 한다.**
+
 ## 14. 2026-08-22 작업 내역 (부산 세션) — GitHub 조직 이전 + `/calc` 서브패스 임베드 배포
 
 - 저장소가 개인 계정 `xchanz-tech`에서 GitHub Organization **`retools-labs`**로 이전됨.

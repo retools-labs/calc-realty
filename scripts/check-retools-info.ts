@@ -24,7 +24,12 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { POLICY_BASE_URL, RETOOLS_INFO } from "../lib/retoolsInfo";
-import { PRODUCT_NAME, PRODUCT_NAME_LEGACY, PRODUCT_NAME_SHORT } from "../lib/productName";
+import {
+  CALC_PRODUCT_NAME,
+  PRODUCT_NAME,
+  PRODUCT_NAME_LEGACY,
+  PRODUCT_NAME_SHORT,
+} from "../lib/productName";
 
 /** 「[리툴스] 대외 표기 정본 대장 (상시 갱신)」 4절 사업자 정보에서 옮겨 적은 값. */
 const 정본 = {
@@ -165,8 +170,12 @@ for (const d of 대상폴더) 이름훑기(path.resolve(process.cwd(), d));
 const 계산기manifest = JSON.parse(
   readFileSync(path.resolve(process.cwd(), "public", "manifest.json"), "utf8")
 ) as { name?: string };
-if (!계산기manifest.name?.includes(PRODUCT_NAME_SHORT)) {
-  문제.push(`public/manifest.json 의 name 에 「${PRODUCT_NAME_SHORT}」 이 없습니다: ${계산기manifest.name}`);
+//    [2026-09-05 지시 036 부속 1] 예전에는 이 자리가 장부 이름을 가리켰다. 총괄이 정리해
+//    이제 계산기 자신의 이름을 적는다. 설치된 앱의 이름을 말하는 자리이기 때문이다.
+if (계산기manifest.name !== CALC_PRODUCT_NAME) {
+  문제.push(
+    `public/manifest.json 의 name 이 「${CALC_PRODUCT_NAME}」 가 아닙니다: ${계산기manifest.name}`
+  );
 }
 
 // 6) 제품 이름 뒤의 조사가 이름의 받침에 맞는가

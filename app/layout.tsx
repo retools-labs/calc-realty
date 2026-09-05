@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "복비계산기",
+    title: "부동산계산기",
   },
 };
 
