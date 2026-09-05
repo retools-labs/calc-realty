@@ -34,7 +34,10 @@
 export const POLICY_BASE_URL = "https://realtybook.retools.kr";
 
 export const RETOOLS_INFO = {
-  companyName: "리툴스 (RETOOLS LABS)",
+  // [2026-09-05 R-21] 상호는 「리툴스」다. "(RETOOLS LABS)" 를 붙이지 않는다.
+  // 사업자등록증에 없는 표기이고 토스페이먼츠가 등록증과 완전 일치를 요구한다.
+  // 정본은 C:\\dev\\정본.md 1절이다.
+  companyName: "리툴스",
   companyNameEn: "Retools",
   ceoName: "박종찬",
   ceoTitle: "대표이사 / CEO & Founder",

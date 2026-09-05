@@ -24,10 +24,14 @@
 **법정 상한요율 기준 부동산 계산기 모음(공개 웹앱)**. `apple-realty-settlement`(사무소 내부용,
 로그인 필요한 정산 시스템)와는 **완전히 별개의 프로젝트**입니다 — 이쪽은 로그인 없이 누구나
 쓰는 공개 유틸리티. 최종 목표는 토스 인앱(앱인토스) 미니앱으로 배포해서 광고 수익 + 애플부동산
-정산 시스템(realtybook.retools.kr, 2026-08-22 이전 apple-realty.vercel.app) 가입 유도 마중물로 쓰는 것.
-2026-08-22부터 retools.kr 메인 페이지의 RealtyBook 카드에서도 realtybook.retools.kr/calc로
-바로 연결되므로(아래 "/calc 서브패스 임베드" 참고), 계산기가 리얼티북 정식 서비스 URL 하위에도
-동시에 노출됨.
+정산 시스템(=**오늘하루 장부-부동산중개**, 구 리얼티북) 가입 유도 마중물로 쓰는 것.
+
+**⚠️ 2026-09-05 경로 체계 확정 — 밖으로 나가는 주소는 `C:\dev\정본.md`에서 옮겨 적는다.**
+서브도메인 시대는 끝났다. 장부는 `/book/영역`, 도구는 `/tool/영역`이다.
+이 계산기의 정본 주소는 **`retools.kr/tool/realty`**이고, 옛 경로 `realtybook.retools.kr/calc`는
+살려두되 새로 적는 문서·인쇄물·링크에 쓰지 않는다.
+`calc-realty.vercel.app`은 안드로이드 TWA 앱이 물고 있으므로 그대로 유지한다
+(개인정보처리방침 `calc-realty.vercel.app/privacy`는 구글 플레이 심사에 그대로 낸다).
 
 기획 원본 문서(Gemini Spark 작성, 총괄 PM 역할): 구글독스
 "리얼티북 — 부동산 계산기 개발 및 마케팅 플랜"
@@ -51,8 +55,9 @@ v1.1 상단 입력폼 리디자인 + 3.6/3.7 추가는 README "12." 참고).** �
   `NEXT_PUBLIC_BASE_PATH=/calc`가 켜져 있고, `next.config.js`가 이 값을 읽어 Next.js
   `basePath`로 적용한다(`lib/basePath.ts`의 `BASE_PATH` 상수도 `<img src>`, `fetch()`,
   서비스워커 등록처럼 basePath가 자동으로 안 붙는 곳에 수동으로 붙이는 용도).
-  realtybook 저장소(`realtybook.retools.kr/calc`)가 이 `calc-realty-embed.vercel.app`을
-  rewrite로 프록시해서 쓴다. **주의: `next.config.js`의 `basePath` 설정은 두 배포(기존
+  현재는 realtybook 저장소(`realtybook.retools.kr/calc`)가 이 `calc-realty-embed.vercel.app`을
+  rewrite로 프록시해서 쓴다. **이 프록시는 `retools.kr/tool/realty`로 이전 대상이며,
+  `NEXT_PUBLIC_BASE_PATH` 값도 함께 바뀐다. 손대기 전에 지금 배포된 값을 반드시 열어서 확인할 것.** **주의: `next.config.js`의 `basePath` 설정은 두 배포(기존
   calc-realty.vercel.app과 calc-realty-embed.vercel.app)가 같은 코드베이스를 공유하므로
   절대 하드코딩하면 안 되고 반드시 `NEXT_PUBLIC_BASE_PATH` 환경변수 기반으로 유지할 것** —
   안 그러면 TWA 앱이 연결된 calc-realty.vercel.app 루트가 깨진다. 새 페이지/컴포넌트를

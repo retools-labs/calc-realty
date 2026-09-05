@@ -28,7 +28,7 @@ import { PRODUCT_NAME, PRODUCT_NAME_LEGACY, PRODUCT_NAME_SHORT } from "../lib/pr
 
 /** 「[리툴스] 대외 표기 정본 대장 (상시 갱신)」 4절 사업자 정보에서 옮겨 적은 값. */
 const 정본 = {
-  companyName: "리툴스 (RETOOLS LABS)",
+  companyName: "리툴스", // [R-21] 등록증 표기. "(RETOOLS LABS)" 를 붙이지 않는다
   ceoName: "박종찬",
   businessRegistrationNo: "141-52-01181",
   mailOrderRegistrationNo: "제2026-부산사상구-0385호",
