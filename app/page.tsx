@@ -153,7 +153,7 @@ function PartnerBanner() {
               wordBreak: "keep-all",
             }}
           >
-            {PRODUCT_NAME_SHORT}과 함께 만드는 성공적인 중개 파트너십!
+            {PRODUCT_NAME_SHORT}와 함께 만드는 성공적인 중개 파트너십!
           </p>
 
           <p

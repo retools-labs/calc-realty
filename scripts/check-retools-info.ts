@@ -169,6 +169,55 @@ if (!계산기manifest.name?.includes(PRODUCT_NAME_SHORT)) {
   문제.push(`public/manifest.json 의 name 에 「${PRODUCT_NAME_SHORT}」 이 없습니다: ${계산기manifest.name}`);
 }
 
+// 6) 제품 이름 뒤의 조사가 이름의 받침에 맞는가
+//    2026-09-05 에 실제로 낸 실수다. 옛 이름 「리얼티북」은 받침이 있어 과를 썼는데,
+//    새 이름은 「…장부」로 끝나 받침이 없다. 이름만 갈아 끼우고 조사를 그대로 두어
+//    「오늘하루 장부과 함께 만드는」이 라이브로 나갔다.
+function 받침있음(word: string): boolean {
+  const code = word.charCodeAt(word.length - 1);
+  if (code < 0xac00 || code > 0xd7a3) return false;
+  return (code - 0xac00) % 28 !== 0;
+}
+const 조사짝: [string, string][] = [
+  ["은", "는"],
+  ["이", "가"],
+  ["을", "를"],
+  ["과", "와"],
+];
+function 조사훑기(dir: string) {
+  for (const name of readdirSync(dir)) {
+    const full = path.join(dir, name);
+    if (statSync(full).isDirectory()) {
+      조사훑기(full);
+      continue;
+    }
+    if (!/\.(ts|tsx)$/.test(name)) continue;
+    const rel = path.relative(process.cwd(), full);
+    if (rel === 제품명파일) continue;
+    const text = readFileSync(full, "utf8");
+    for (const [상수이름, 값] of [
+      ["PRODUCT_NAME", PRODUCT_NAME],
+      ["PRODUCT_NAME_SHORT", PRODUCT_NAME_SHORT],
+      ["PRODUCT_NAME_LEGACY", PRODUCT_NAME_LEGACY],
+    ] as [string, string][]) {
+      const 받침 = 받침있음(값);
+      for (const [있을때, 없을때] of 조사짝) {
+        const 틀림 = 받침 ? 없을때 : 있을때;
+        const 맞음 = 받침 ? 있을때 : 없을때;
+        const re = new RegExp("\\{" + 상수이름 + "\\}" + 틀림 + "(?=[\\s.,)\"'`]|&quot;)", "g");
+        if (re.test(text)) {
+          문제.push(
+            rel + " 에서 " + 상수이름 + " 뒤에 「" + 틀림 + "」 를 썼습니다. 이름 「" + 값 +
+              "」 의 마지막 글자에 받침이 " + (받침 ? "있습니다" : "없습니다") +
+              ". 맞는 조사는 「" + 맞음 + "」 입니다"
+          );
+        }
+      }
+    }
+  }
+}
+for (const d of 대상폴더) 조사훑기(path.resolve(process.cwd(), d));
+
 if (문제.length) {
   console.error("");
   console.error("대외 표기 값이 정본과 다릅니다. 빌드를 멈춥니다.");
