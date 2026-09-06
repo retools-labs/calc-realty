@@ -33,7 +33,11 @@ export default function Footer() {
         </div>
 
         <p className="mb-2 flex flex-wrap gap-x-3 gap-y-1 text-gray-500">
-          <a href={`${POLICY_BASE_URL}/terms`} className="hover:text-[#0d3b52] hover:underline">
+          {/* [2026-09-06 S-10] 계산기는 제 약관을 쓴다. 방침을 R-20 에서 갈아 끼울 때
+              바로 옆의 이 링크가 그대로 남아 리얼티북 약관을 가리키고 있었다. 그쪽은
+              회원·결제·환불이 있는 다른 서비스의 약관이라, 무료이고 가입도 없는 이 앱의
+              이용자에게 보여 주면 「이 앱은 무료입니다」와 어긋난다. 방침과 같은 이유다. */}
+          <a href={`${BASE_PATH}/terms`} className="hover:text-[#0d3b52] hover:underline">
             이용약관
           </a>
           <span aria-hidden>·</span>

@@ -112,6 +112,19 @@ if (푸터.includes("${POLICY_BASE_URL}/privacy")) {
   );
 }
 
+//    [2026-09-06 S-10] 약관도 같은 자리다. 방침을 R-20 에서 계산기 제 것으로 갈아 끼울 때
+//    바로 옆의 이용약관 링크가 리얼티북 약관을 가리킨 채 남아 있었다. 한 자리를 고치고
+//    옆자리를 놓치는 것이 이 푸터에서 두 번째다. 그래서 둘을 나란히 검사한다.
+const 약관페이지 = path.resolve(process.cwd(), "app", "terms", "page.tsx");
+if (!existsSync(약관페이지)) {
+  문제.push("app/terms/page.tsx 가 없습니다. 푸터의 이용약관 링크(/terms)가 404 가 됩니다");
+}
+if (푸터.includes("${POLICY_BASE_URL}/terms")) {
+  문제.push(
+    "components/Footer.tsx 의 이용약관 링크가 리얼티북 약관을 가리킵니다. `${BASE_PATH}/terms` 로 적으십시오"
+  );
+}
+
 // 5) 장부 제품 이름이 realtybook 저장소의 정본과 같은가
 //    [2026-09-05 R-20] 「리얼티북」에서 「오늘하루 장부-부동산중개」로 바꿨다. 정본은
 //    realtybook 저장소의 src/lib/productName.ts 이고, 저장소가 달라 코드로 묶이지 않는다.
