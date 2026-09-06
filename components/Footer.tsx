@@ -48,10 +48,11 @@ export default function Footer() {
           <a href={`${BASE_PATH}/privacy`} className="hover:text-[#0d3b52] hover:underline">
             개인정보처리방침
           </a>
-          <span aria-hidden>·</span>
-          <a href={`${POLICY_BASE_URL}/refund-policy`} className="hover:text-[#0d3b52] hover:underline">
-            구독 취소 및 환불 정책
-          </a>
+          {/* [2026-09-06 지시 039] 환불정책 링크를 뺐다. 이 앱은 무료이고 결제가 없어
+              환불할 것이 없는데, 링크는 유료 서비스인 장부의 환불정책을 가리키고 있었다.
+              약관에 환불 조항을 넣지 않기로 해 놓고 푸터에서 환불정책을 걸어 두면 두
+              문서가 다른 말을 한다. 이용약관·방침 링크를 갈아 끼울 때 이 줄만 남았던
+              것이라, 이 푸터에서 옆자리를 놓친 것이 세 번째다. */}
         </p>
         <p>
           상호명: {r.companyName} · 대표자: {r.ceoName} · 사업자등록번호: {r.businessRegistrationNo}
