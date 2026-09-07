@@ -245,6 +245,9 @@ export default function Home() {
   // 챙겨가기가 이미 이겼으면 정산 줄로 되돌리지 않는다.
   // track 을 setState 갱신 함수 안에서 부르지 않는다 — 개발 모드의 두 번 호출로 이벤트가 겹친다.
   function showHook(next: Exclude<Hook, null>) {
+    // 일반고객 모드에는 파트너로 보내는 자리를 두지 않는다 (지시 039 · 배너와 같은 판정).
+    // 후킹 두 줄의 목적지가 배너와 같은 /partner 이므로 조건도 같아야 한다.
+    if (mode !== "agent") return;
     if (hook === "carry" || hook === next) return;
     setHook(next);
     track("hook_shown", { place: next, tab, mode });
