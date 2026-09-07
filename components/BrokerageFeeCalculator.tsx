@@ -14,12 +14,22 @@ import ShareReceiptButton from "./ShareReceiptButton";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import Modal from "./Modal";
 import { ResultCard, ResultDivider, ResultHeadline, ResultHighlight, ResultHighlightRow, ResultRow } from "./ResultCard";
+import HookLine from "./HookLine";
+import type { Hook, ShowHook } from "@/lib/hook";
 
 type UserMode = "customer" | "agent";
 type CoBrokerage = "single" | "double"; // 단타(공동중개, 50%) / 양타(단독 또는 양쪽 대리, 100%)
 
 // design-preview: 일반/실무용 전환이 app/page.tsx 상단 글로벌 스위치로 옮겨져서 mode를 prop으로 받는다.
-export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserMode }) {
+export default function BrokerageFeeCalculator({
+  mode: userMode,
+  hook,
+  showHook,
+}: {
+  mode: UserMode;
+  hook: Hook;
+  showHook: ShowHook;
+}) {
   const [propertyType, setPropertyType] = useState<PropertyType>("house");
   const [dealType, setDealType] = useState<DealType>("sale");
   const [isMonthly, setIsMonthly] = useState(false);
@@ -102,6 +112,9 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
+      // [X-45] 복사가 실제로 성공한 뒤에만 챙겨가기 줄을 편다.
+      // catch 에서는 부르지 않는다 — 클립보드가 막힌 환경에서는 챙겨 간 것이 아니다.
+      showHook("carry");
     } catch {
       setCopied(false);
     }
@@ -216,6 +229,11 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
               step={1}
               value={rsRate}
               onChange={(e) => setRsRate(Number(e.target.value))}
+              // [X-45] onChange 에 걸지 않는다. 리액트의 range onChange 는 끄는 동안 계속
+              // 발화해서 값이 흔들리는 내내 글자가 같이 떨리고, 무엇보다 그 사람이 아직
+              // 답을 못 본 상태다. 손을 뗀 뒤라야 「이걸 남길 수 있어?」가 성립한다.
+              onPointerUp={() => showHook("settle")}
+              onKeyUp={() => showHook("settle")}
               className="w-full accent-cobalt"
             />
           </div>
@@ -242,6 +260,15 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
                 value={formatKRW(officeFee)}
               />
               <ResultHighlightRow label={`담당 중개사 개인 수령액 (RS ${rsRate}%)`} value={formatKRW(personalFee)} emphasize />
+              {hook === "settle" && (
+                <HookLine
+                  place="settle"
+                  text="이렇게 나눈 몫, 건마다"
+                  linkText="장부에 한 줄로 남습니다 →"
+                  tab="fee"
+                  mode={userMode}
+                />
+              )}
             </ResultHighlight>
           )}
         </ResultCard>
@@ -270,6 +297,16 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
         </button>
       </div>
 
+      {hook === "carry" && (
+        <HookLine
+          place="carry"
+          text="계산기는 이 건을 들고 있지 않습니다."
+          linkText={`${PRODUCT_NAME_SHORT}는 남깁니다 →`}
+          tab="fee"
+          mode={userMode}
+        />
+      )}
+
       <Modal open={showReceipt} onClose={() => setShowReceipt(false)}>
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-bold text-[#16232E]">영수증 카드 미리보기</span>
@@ -290,7 +327,11 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
           total={result.totalWithVat}
           totalLabel="최종 지급액"
         />
-        <ShareReceiptButton targetRef={receiptRef} fileName={`${PRODUCT_NAME_SHORT}_복비계산_영수증.png`} />
+        <ShareReceiptButton
+          targetRef={receiptRef}
+          fileName={`${PRODUCT_NAME_SHORT}_복비계산_영수증.png`}
+          onDone={() => showHook("carry")}
+        />
       </Modal>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">

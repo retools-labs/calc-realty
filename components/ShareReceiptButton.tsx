@@ -7,12 +7,14 @@ import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 interface Props {
   targetRef: RefObject<HTMLElement>;
   fileName?: string;
+  /** [X-45] 저장·공유가 실제로 끝난 뒤에만 부른다. 실패하면 부르지 않는다. */
+  onDone?: () => void;
 }
 
 // ReceiptCard를 이미지(PNG)로 캡처해서, 모바일에서는 카카오톡 등으로 바로 공유(Web Share API),
 // 지원 안 되는 환경(대부분의 PC 브라우저)에서는 파일 다운로드로 대체한다.
 // html2canvas는 번들 크기가 있어 클릭 시점에 동적 import로 불러온다.
-export default function ShareReceiptButton({ targetRef, fileName = `${PRODUCT_NAME_SHORT}_계산결과.png` }: Props) {
+export default function ShareReceiptButton({ targetRef, fileName = `${PRODUCT_NAME_SHORT}_계산결과.png`, onDone }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,6 +63,7 @@ export default function ShareReceiptButton({ targetRef, fileName = `${PRODUCT_NA
         try {
           await navigator.share({ files: [file], title: `${PRODUCT_NAME_SHORT} 계산 결과` });
           track("receipt_shared", { fileName, via: "web_share" });
+          onDone?.();
           return;
         } catch (shareErr) {
           // 사용자가 공유시트에서 직접 취소한 경우(AbortError)는 조용히 종료.
@@ -70,6 +73,7 @@ export default function ShareReceiptButton({ targetRef, fileName = `${PRODUCT_NA
       }
       downloadBlob(blob);
       track("receipt_shared", { fileName, via: "download" });
+      onDone?.();
     } catch {
       track("receipt_share_failed", { fileName });
       setError("이미지 생성에 실패했어요. 다시 시도해주세요.");

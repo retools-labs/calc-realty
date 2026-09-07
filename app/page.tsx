@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BrokerageFeeCalculator from "@/components/BrokerageFeeCalculator";
 import ProrateCalculator from "@/components/ProrateCalculator";
 import MovingCostCalculator from "@/components/MovingCostCalculator";
@@ -10,13 +10,9 @@ import JeonseConversionCalculator from "@/components/JeonseConversionCalculator"
 import { BASE_PATH } from "@/lib/basePath";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import { track } from "@/lib/analytics";
-import { POLICY_BASE_URL } from "@/lib/retoolsInfo";
+import { PARTNER_URL, type Hook } from "@/lib/hook";
 
-// [2026-09-04 R-18] 리얼티북의 옛 도메인을 직접 가리키고 있었다. 푸터의 약관 링크와
-// 같은 문제인데 지시에는 이 한 줄이 빠져 있어 함께 잡는다. 옛 주소도 아직 열리기는
-// 하지만, 정본 대장에서 사라져야 할 이름이 대외 화면에 남아 있으면 언젠가 그 주소가
-// 서류로 옮겨 적힌다. 주소는 lib/retoolsInfo.ts 한 곳에서만 정한다.
-const PARTNER_URL = `${POLICY_BASE_URL}/partner`;
+// PARTNER_URL 은 lib/hook.ts 에 있다. 후킹 두 줄이 같은 주소를 쓰므로 한 곳에서 정한다.
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -57,7 +53,10 @@ function PartnerBanner() {
         href={PARTNER_URL}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={() => track("partner_banner_clicked")}
+        onClick={() => {
+          track("partner_banner_clicked");
+          track("hook_clicked", { place: "banner" });
+        }}
         className="relative block overflow-hidden transition active:scale-[0.99]"
         style={{
           borderRadius: 24,
@@ -230,6 +229,11 @@ export default function Home() {
   const [tab, setTab] = useState<CalcTab>("fee");
   const [mode, setMode] = useState<Mode>("customer");
 
+  // [X-45] 한 화면에 후킹은 하나만 보인다(X-30 개정 정본).
+  // 세 자리가 같은 곳으로 가므로 겹치면 안 되고, 늦은 신호가 이긴다.
+  const [hook, setHook] = useState<Hook>(null);
+  const bannerShown = useRef<Set<string>>(new Set());
+
   // [2026-09-04 R-11] 「계산까지 가는가」를 재는 자리.
   //
   // 이 계산기들에는 「계산하기」 버튼이 없다. 값을 넣는 즉시 결과가 다시 그려진다.
@@ -238,22 +242,45 @@ export default function Home() {
   // 받아 탭별로 첫 입력을 남긴다. 계산기 쪽 코드는 건드리지 않는다.
   const engagedTabs = useRef<Set<CalcTab>>(new Set());
 
+  // 챙겨가기가 이미 이겼으면 정산 줄로 되돌리지 않는다.
+  // track 을 setState 갱신 함수 안에서 부르지 않는다 — 개발 모드의 두 번 호출로 이벤트가 겹친다.
+  function showHook(next: Exclude<Hook, null>) {
+    if (hook === "carry" || hook === next) return;
+    setHook(next);
+    track("hook_shown", { place: next, tab, mode });
+  }
+
   function selectTab(next: CalcTab) {
     setTab(next);
+    setHook(null);
     track("calc_tab_selected", { tab: next, mode });
   }
 
   function selectMode(next: Mode) {
     setMode(next);
+    setHook(null);
     track("calc_mode_selected", { mode: next, tab });
   }
 
   // 입력 이벤트는 위로 올라오므로(버블링) 담는 div 에서 한 번만 받으면 된다.
   function handleCalcInput() {
+    setHook(null); // 값을 다시 만지면 후킹을 접는다. 그 사람은 아직 계산 중이다
     if (engagedTabs.current.has(tab)) return;
     engagedTabs.current.add(tab);
     track("calc_engaged", { tab, mode });
   }
+
+  // 파트너 배너는 공인중개사 실무용에서만 보이고, 후킹 줄이 떠 있는 동안 접힌다.
+  // 일반고객은 중개 업무를 정리할 사람이 아니다. 자리를 거르지 못하면 문구를 고쳐도 소용이 없다.
+  const bannerVisible = mode === "agent" && hook === null;
+
+  useEffect(() => {
+    if (!bannerVisible) return;
+    const key = `${tab}|${mode}`;
+    if (bannerShown.current.has(key)) return;
+    bannerShown.current.add(key);
+    track("hook_shown", { place: "banner", tab, mode });
+  }, [bannerVisible, tab, mode]);
 
   return (
     <main className="min-h-screen bg-[#F2F6FA] pb-10 text-[#16232E]">
@@ -308,7 +335,9 @@ export default function Home() {
         </div>
 
         <div className="mt-3" onInput={handleCalcInput}>
-          {tab === "fee" && <BrokerageFeeCalculator mode={mode} />}
+          {tab === "fee" && (
+            <BrokerageFeeCalculator mode={mode} hook={hook} showHook={showHook} />
+          )}
           {tab === "prorate" && <ProrateCalculator mode={mode} />}
           {tab === "movingCost" && <MovingCostCalculator />}
           {tab === "capRate" && <CapRateCalculator />}
@@ -317,9 +346,11 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mt-4">
-        <PartnerBanner />
-      </div>
+      {bannerVisible && (
+        <div className="mt-4">
+          <PartnerBanner />
+        </div>
+      )}
     </main>
   );
 }
