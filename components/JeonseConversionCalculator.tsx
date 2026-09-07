@@ -13,6 +13,8 @@ import {
 } from "@/lib/jeonseConversion";
 import { SegButton, WonInput, formatKoreanUnit } from "./ui";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
+import CarryLine from "./CarryLine";
+import { useHook } from "@/lib/hookContext";
 import { BASE_PATH } from "@/lib/basePath";
 
 interface BaseRateInfo {
@@ -30,6 +32,7 @@ const INITIAL_BASE_RATE: BaseRateInfo = {
 };
 
 export default function JeonseConversionCalculator() {
+  const { showHook } = useHook();
   // 한국은행 기준금리 실시간 조회 — /api/base-rate가 ECOS Open API를 서버에서 대신 호출해준다.
   // 사용자는 아무것도 확인할 필요 없이, 화면을 열 때마다 자동으로 최신 법정 상한이 반영된다.
   const [baseRateInfo, setBaseRateInfo] = useState<BaseRateInfo>(INITIAL_BASE_RATE);
@@ -116,6 +119,8 @@ export default function JeonseConversionCalculator() {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
+      // [X-45 3단계] 복사가 실제로 성공한 뒤에만 챙겨가기 줄을 편다. catch 에서는 부르지 않는다.
+      showHook("carry");
     } catch {
       setCopied(false);
     }
@@ -288,6 +293,7 @@ export default function JeonseConversionCalculator() {
       >
         {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
       </button>
+      <CarryLine />
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         본 계산 결과는 주택임대차보호법 및 같은 법 시행령 기준 참고용 안내이며, 법정 전환율 상한은

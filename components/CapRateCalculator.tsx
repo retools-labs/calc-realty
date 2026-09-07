@@ -5,12 +5,15 @@ import { formatKRW } from "@/lib/calc";
 import { calcCapRate, calcPremiumFee } from "@/lib/capRate";
 import { WonInput } from "./ui";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
+import CarryLine from "./CarryLine";
+import { useHook } from "@/lib/hookContext";
 
 function formatPercent(v: number): string {
   return `${v.toFixed(2)}%`;
 }
 
 export default function CapRateCalculator() {
+  const { showHook } = useHook();
   const [purchasePrice, setPurchasePrice] = useState(0);
   const [deposit, setDeposit] = useState(0);
   const [loanAmount, setLoanAmount] = useState(0);
@@ -54,6 +57,8 @@ export default function CapRateCalculator() {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
+      // [X-45 3단계] 복사가 실제로 성공한 뒤에만 챙겨가기 줄을 편다. catch 에서는 부르지 않는다.
+      showHook("carry");
     } catch {
       setCopied(false);
     }
@@ -153,6 +158,7 @@ export default function CapRateCalculator() {
       >
         {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
       </button>
+      <CarryLine />
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         임대수익률은 세전·감가상각 미반영 단순 참고 지표이며, 권리금 수수료는 법정 상한이 없는

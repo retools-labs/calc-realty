@@ -5,8 +5,11 @@ import { formatKRW } from "@/lib/calc";
 import { calcPyeong, type AreaUnit } from "@/lib/pyeong";
 import { SegButton, WonInput, formatKoreanUnit } from "./ui";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
+import CarryLine from "./CarryLine";
+import { useHook } from "@/lib/hookContext";
 
 export default function PyeongCalculator() {
+  const { showHook } = useHook();
   const [totalAmount, setTotalAmount] = useState(0);
   const [areaUnit, setAreaUnit] = useState<AreaUnit>("pyeong");
   const [areaRaw, setAreaRaw] = useState("");
@@ -36,6 +39,8 @@ export default function PyeongCalculator() {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
+      // [X-45 3단계] 복사가 실제로 성공한 뒤에만 챙겨가기 줄을 편다. catch 에서는 부르지 않는다.
+      showHook("carry");
     } catch {
       setCopied(false);
     }
@@ -116,6 +121,7 @@ export default function PyeongCalculator() {
       >
         {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
       </button>
+      <CarryLine />
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">
         1평 = 400/121㎡(≒3.3058㎡) 기준 단순 환산이며, 등기·건축물대장상 면적과는 소수점 처리 방식에

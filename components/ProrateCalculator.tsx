@@ -5,6 +5,8 @@ import { calcProrate } from "@/lib/prorate";
 import { formatKRW } from "@/lib/calc";
 import { WonInput } from "./ui";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
+import CarryLine from "./CarryLine";
+import { useHook } from "@/lib/hookContext";
 
 function todayISO(): string {
   const d = new Date();
@@ -18,6 +20,7 @@ function todayISO(): string {
 // 기존 단일 합계 방식을 그대로 유지한다 — 목업의 분리 계산은 별도 기능 확장으로 남겨둠.
 export default function ProrateCalculator({ mode }: { mode?: "customer" | "agent" } = {}) {
   void mode;
+  const { showHook } = useHook();
   const [moveInDate, setMoveInDate] = useState(todayISO());
   const [monthlyRent, setMonthlyRent] = useState(0);
   const [monthlyMaintenanceFee, setMonthlyMaintenanceFee] = useState(0);
@@ -56,6 +59,8 @@ export default function ProrateCalculator({ mode }: { mode?: "customer" | "agent
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
+      // [X-45 3단계] 복사가 실제로 성공한 뒤에만 챙겨가기 줄을 편다. catch 에서는 부르지 않는다.
+      showHook("carry");
     } catch {
       setCopied(false);
     }
@@ -130,6 +135,7 @@ export default function ProrateCalculator({ mode }: { mode?: "customer" | "agent
           >
             {copied ? "복사됐어요 ✓" : "결과 텍스트로 복사하기"}
           </button>
+          <CarryLine />
         </>
       ) : (
         <p className="mt-4 text-sm text-[#8B95A1]">날짜를 입력해주세요.</p>

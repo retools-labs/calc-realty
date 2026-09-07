@@ -9,10 +9,13 @@ import ShareReceiptButton from "./ShareReceiptButton";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import Modal from "./Modal";
 import { ResultCard, ResultDivider, ResultHeadline, ResultRow } from "./ResultCard";
+import CarryLine from "./CarryLine";
+import { useHook } from "@/lib/hookContext";
 
 type DealKind = "sale" | "lease";
 
 export default function MovingCostCalculator() {
+  const { showHook } = useHook();
   const [dealKind, setDealKind] = useState<DealKind>("sale");
   const [copied, setCopied] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
@@ -107,6 +110,8 @@ export default function MovingCostCalculator() {
       await navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
+      // [X-45 3단계] 복사가 실제로 성공한 뒤에만 챙겨가기 줄을 편다. catch 에서는 부르지 않는다.
+      showHook("carry");
     } catch {
       setCopied(false);
     }
@@ -264,6 +269,8 @@ export default function MovingCostCalculator() {
         </button>
       </div>
 
+      <CarryLine />
+
       <Modal open={showReceipt} onClose={() => setShowReceipt(false)}>
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-bold text-[#16232E]">영수증 카드 미리보기</span>
@@ -283,7 +290,11 @@ export default function MovingCostCalculator() {
           lines={lines}
           total={total}
         />
-        <ShareReceiptButton targetRef={receiptRef} fileName={`${PRODUCT_NAME_SHORT}_이사비용_영수증.png`} />
+        <ShareReceiptButton
+          targetRef={receiptRef}
+          fileName={`${PRODUCT_NAME_SHORT}_이사비용_영수증.png`}
+          onDone={() => showHook("carry")}
+        />
       </Modal>
 
       <p className="mt-4 text-center text-xs leading-relaxed text-[#9AA5B1]">

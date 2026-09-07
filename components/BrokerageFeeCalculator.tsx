@@ -15,21 +15,16 @@ import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import Modal from "./Modal";
 import { ResultCard, ResultDivider, ResultHeadline, ResultHighlight, ResultHighlightRow, ResultRow } from "./ResultCard";
 import HookLine from "./HookLine";
-import type { Hook, ShowHook } from "@/lib/hook";
+import CarryLine from "./CarryLine";
+import { useHook } from "@/lib/hookContext";
 
 type UserMode = "customer" | "agent";
 type CoBrokerage = "single" | "double"; // 단타(공동중개, 50%) / 양타(단독 또는 양쪽 대리, 100%)
 
 // design-preview: 일반/실무용 전환이 app/page.tsx 상단 글로벌 스위치로 옮겨져서 mode를 prop으로 받는다.
-export default function BrokerageFeeCalculator({
-  mode: userMode,
-  hook,
-  showHook,
-}: {
-  mode: UserMode;
-  hook: Hook;
-  showHook: ShowHook;
-}) {
+// [X-45 3단계] hook·showHook 은 prop 이 아니라 컨텍스트에서 읽는다(lib/hookContext.tsx).
+export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserMode }) {
+  const { hook, showHook } = useHook();
   const [propertyType, setPropertyType] = useState<PropertyType>("house");
   const [dealType, setDealType] = useState<DealType>("sale");
   const [isMonthly, setIsMonthly] = useState(false);
@@ -265,8 +260,6 @@ export default function BrokerageFeeCalculator({
                   place="settle"
                   text="이렇게 나눈 몫, 건마다"
                   linkText="장부에 한 줄로 남습니다 →"
-                  tab="fee"
-                  mode={userMode}
                 />
               )}
             </ResultHighlight>
@@ -297,15 +290,7 @@ export default function BrokerageFeeCalculator({
         </button>
       </div>
 
-      {hook === "carry" && (
-        <HookLine
-          place="carry"
-          text="계산기는 이 건을 들고 있지 않습니다."
-          linkText={`${PRODUCT_NAME_SHORT}는 남깁니다 →`}
-          tab="fee"
-          mode={userMode}
-        />
-      )}
+      <CarryLine />
 
       <Modal open={showReceipt} onClose={() => setShowReceipt(false)}>
         <div className="mb-3 flex items-center justify-between">

@@ -11,6 +11,7 @@ import { BASE_PATH } from "@/lib/basePath";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import { track } from "@/lib/analytics";
 import { PARTNER_URL, type Hook } from "@/lib/hook";
+import { HookProvider } from "@/lib/hookContext";
 
 // PARTNER_URL 은 lib/hook.ts 에 있다. 후킹 두 줄이 같은 주소를 쓰므로 한 곳에서 정한다.
 
@@ -337,16 +338,18 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="mt-3" onInput={handleCalcInput}>
-          {tab === "fee" && (
-            <BrokerageFeeCalculator mode={mode} hook={hook} showHook={showHook} />
-          )}
-          {tab === "prorate" && <ProrateCalculator mode={mode} />}
-          {tab === "movingCost" && <MovingCostCalculator />}
-          {tab === "capRate" && <CapRateCalculator />}
-          {tab === "pyeong" && <PyeongCalculator />}
-          {tab === "jeonseConversion" && <JeonseConversionCalculator />}
-        </div>
+        {/* [X-45 3단계] 후킹 상태는 이 한 곳이 쥐고, 여섯 계산기는 useHook() 으로 읽는다.
+            prop 으로 내리면 여섯 곳에 같은 두 줄이 늘어서고 한 곳만 빠져도 그 탭에서만 조용히 사라진다. */}
+        <HookProvider value={{ hook, showHook, tab, mode }}>
+          <div className="mt-3" onInput={handleCalcInput}>
+            {tab === "fee" && <BrokerageFeeCalculator mode={mode} />}
+            {tab === "prorate" && <ProrateCalculator mode={mode} />}
+            {tab === "movingCost" && <MovingCostCalculator />}
+            {tab === "capRate" && <CapRateCalculator />}
+            {tab === "pyeong" && <PyeongCalculator />}
+            {tab === "jeonseConversion" && <JeonseConversionCalculator />}
+          </div>
+        </HookProvider>
       </div>
 
       {bannerVisible && (
