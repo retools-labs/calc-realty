@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { formatKRW } from "@/lib/calc";
 import { BASE_PATH } from "@/lib/basePath";
+import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 
 export interface ReceiptLine {
   label: string;
@@ -74,7 +75,7 @@ const ReceiptCard = forwardRef<HTMLDivElement, Props>(function ReceiptCard(
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={`${BASE_PATH}/images/receipt-cta-v3.png`}
-        alt="오늘하루 장부 부동산중개 | 중개보수 정산을 건마다 한 줄로 · 1개월 무료 · 카드 없이 시작 — retools.kr/book/realty"
+        alt={`${PRODUCT_NAME_SHORT} 부동산중개 | 중개보수 정산을 건마다 한 줄로 · 1개월 무료 · 카드 없이 시작 — retools.kr/book/realty`}
         className="block aspect-[73/23] w-full rounded-b-[11px] object-cover"
       />
     </div>
