@@ -5,7 +5,10 @@ import { track } from "@/lib/analytics";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 
 interface Props {
-  targetRef: RefObject<HTMLElement>;
+  // [R05 · 2026-09-11] React 19 에서 useRef<T>(null) 의 반환형이 RefObject<T | null> 로 바뀌었다.
+  // 부르는 쪽(BrokerageFeeCalculator · MovingCostCalculator)이 그 형이므로 여기서 null 을 받는다.
+  // 아래 캡처 함수는 이미 targetRef.current 가 없을 때를 보고 있으므로 동작은 달라지지 않는다.
+  targetRef: RefObject<HTMLElement | null>;
   fileName?: string;
   /** [X-45] 저장·공유가 실제로 끝난 뒤에만 부른다. 실패하면 부르지 않는다. */
   onDone?: () => void;
