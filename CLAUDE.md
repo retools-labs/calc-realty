@@ -14,8 +14,8 @@
 - **"작업 마감" / "여기까지 하고 마감할게"** — 이번 세션에서 처리한 내용을 README.md
   "다음 단계 백로그" / "최근 작업 내역" 섹션과 이 CLAUDE.md에 반영한다.
 
-**코드는 오직 GitHub(`git pull`/`git push`)로만 동기화.** 로컬 경로는 항상
-`C:\dev\calc-realty` 고정. `.git`, `node_modules`, `.next` 등은 구글 드라이브로
+**코드는 오직 GitHub(`git pull`/`git push`)로만 동기화.** 로컬 경로는 이 저장소
+폴더로 고정. `.git`, `node_modules`, `.next` 등은 구글 드라이브로
 복사/동기화하지 않는다(apple-realty-settlement에서 이미 겪은 문제 — 드라이브 동기화 클라이언트의
 파일 잠금과 `npm install`/`git` 쓰기 작업이 충돌해 빌드가 깨질 수 있음).
 
@@ -26,7 +26,8 @@
 쓰는 공개 유틸리티. 최종 목표는 토스 인앱(앱인토스) 미니앱으로 배포해서 광고 수익 + 애플부동산
 정산 시스템(=**오늘하루 장부-부동산중개**, 구 리얼티북) 가입 유도 마중물로 쓰는 것.
 
-**⚠️ 2026-09-05 경로 체계 확정 — 밖으로 나가는 주소는 `C:\dev\정본.md`에서 옮겨 적는다.**
+**⚠️ 2026-09-05 경로 체계 확정 — 밖으로 나가는 주소는 `retools-labs/hq` 저장소의
+`정본.md`에서 옮겨 적는다.**
 서브도메인 시대는 끝났다. 장부는 `/book/영역`, 도구는 `/tool/영역`이다.
 이 계산기의 정본 주소는 **`retools.kr/tool/realty`**이고, 옛 경로 `realtybook.retools.kr/calc`는
 살려두되 새로 적는 문서·인쇄물·링크에 쓰지 않는다.
@@ -76,7 +77,7 @@ v1.1 상단 입력폼 리디자인 + 3.6/3.7 추가는 README "12." 참고).** �
 
 apple-realty-settlement와 동일:
 
-1. 시작할 때 `git pull`, 끝날 때 `git push`. 부산/울산 두 곳에서 같은 `C:\dev\calc-realty`
+1. 시작할 때 `git pull`, 끝날 때 `git push`. 부산/울산 두 곳에서 같은 이 저장소
    경로를 쓰기로 했음.
 2. 커밋 전엔 `npx tsc --noEmit -p tsconfig.json`으로 타입체크 먼저 돌려서 깨진 게 없는지 확인.
 3. `git push` 하면 Vercel이 자동 배포하므로, push 직후 사용자에게 배포 확인 방법 안내할 것.

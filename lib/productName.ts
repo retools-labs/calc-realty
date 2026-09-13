@@ -21,7 +21,7 @@ export const PRODUCT_NAME_SHORT = "오늘하루 장부";
 export const PRODUCT_NAME_LEGACY = "리얼티북";
 
 /**
- * 이 계산기 자신의 이름. 정본(C:\dev\정본.md 2절)의 제품 표에 적힌 값이다.
+ * 이 계산기 자신의 이름. 정본(retools-labs/hq 저장소의 정본.md 2절)의 제품 표에 적힌 값이다.
  *
  * [2026-09-05 지시 036 부속 1] 이름이 네 갈래로 적혀 있던 것을 총괄이 정리했다.
  * 설치된 앱의 이름을 말하는 자리(web manifest · 홈 화면 · 설치 안내)는 전부 이 값이다.
