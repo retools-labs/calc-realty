@@ -135,12 +135,12 @@ if (푸터.includes("refund-policy")) {
 }
 
 // 5) 장부 제품 이름이 realtybook 저장소의 정본과 같은가
-//    [2026-09-05 R-20] 「리얼티북」에서 「오늘하루 장부-부동산중개」로 바꿨다. 정본은
+//    [2026-09-15] 「오늘하루 장부-부동산중개」에서 「오늘하루 중개」로 바꿨다. 정본은
 //    realtybook 저장소의 src/lib/productName.ts 이고, 저장소가 달라 코드로 묶이지 않는다.
 //    사업자정보와 같은 문제이므로 같은 자리에서 막는다.
 const 제품명정본 = {
-  PRODUCT_NAME: "오늘하루 장부-부동산중개",
-  PRODUCT_NAME_SHORT: "오늘하루 장부",
+  PRODUCT_NAME: "오늘하루 중개",
+  PRODUCT_NAME_SHORT: "오늘하루 중개",
   PRODUCT_NAME_LEGACY: "리얼티북",
 } as const;
 const 지금제품명 = { PRODUCT_NAME, PRODUCT_NAME_SHORT, PRODUCT_NAME_LEGACY };

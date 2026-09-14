@@ -3,7 +3,7 @@
 //
 // 계산기 자신의 이름(복비 계산기)은 바뀌지 않았다. 다만 이 화면 곳곳이 장부 제품을
 // 가리키고 있어서 그 이름이 함께 바뀐다. 「리얼티북」에서
-// 「오늘하루 장부-부동산중개」로 간다.
+// 「오늘하루 중개」로 간다.
 //
 // 정본은 realtybook 저장소의 src/lib/productName.ts 다. 저장소가 달라 코드로 묶이지
 // 않으므로 값을 옮겨 적는다. 사업자정보(retoolsInfo.ts)와 같은 구조이고, 같은 이유로
@@ -12,10 +12,10 @@
 // ============================================================
 
 /** 정식 명칭. */
-export const PRODUCT_NAME = "오늘하루 장부-부동산중개";
+export const PRODUCT_NAME = "오늘하루 중개";
 
 /** 좁은 자리에서 쓰는 줄임말. */
-export const PRODUCT_NAME_SHORT = "오늘하루 장부";
+export const PRODUCT_NAME_SHORT = "오늘하루 중개";
 
 /** 옛 이름. 「(구 리얼티북)」으로만 병기한다(총괄 지시 032 2절). */
 export const PRODUCT_NAME_LEGACY = "리얼티북";
