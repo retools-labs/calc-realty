@@ -35,7 +35,8 @@ self.addEventListener("activate", (event) => {
 
 function cacheResponse(request, response) {
   if (response && response.status === 200) {
-    caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+    const copy = response.clone();
+    caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => undefined);
   }
   return response;
 }
