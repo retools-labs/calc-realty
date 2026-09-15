@@ -129,9 +129,12 @@ export default function InstallPrompt() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 sm:flex sm:justify-center">
       <div className="mx-auto flex w-full max-w-md items-center gap-3 rounded-2xl border border-[#0d3b52]/10 bg-white p-4 shadow-lg">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0d3b52] to-[#1c7fa0] text-sm font-extrabold text-white">
-          RB
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`${BASE_PATH}/icons/icon-192.png`}
+          alt=""
+          className="h-11 w-11 shrink-0 rounded-xl"
+        />
 
         {platform === "android" ? (
           <>
