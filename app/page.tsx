@@ -87,7 +87,7 @@ function PartnerBanner() {
         />
 
         <img
-          src={`${BASE_PATH}/icons/rb-mark-white.png`}
+          src={`${BASE_PATH}/icons/mark-white.png`}
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute"
