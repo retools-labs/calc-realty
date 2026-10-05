@@ -11,7 +11,7 @@ import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  ...(SITE_URL ? { metadataBase: new URL(`${SITE_URL}/`), alternates: { canonical: `${SITE_URL}/` } } : {}),
+  ...(SITE_URL ? { metadataBase: new URL(`${SITE_URL}/`), alternates: { canonical: SITE_URL } } : {}),
   title: `${PRODUCT_NAME_SHORT} | 부동산 중개보수 계산기`,
   description:
     "매매·전세·월세 부동산 중개보수(복비)를 법정 상한요율 기준으로 바로 계산해보세요. 일반과세/간이과세 부가세까지 한번에.",
