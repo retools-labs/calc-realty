@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   if (!site) return [];
   const lastModified = new Date("2026-10-05");
   return [
-    { url: `${site}/`, lastModified, changeFrequency: "monthly", priority: 1 },
+    { url: site, lastModified, changeFrequency: "monthly", priority: 1 },
     { url: `${site}/privacy`, lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: `${site}/terms`, lastModified, changeFrequency: "yearly", priority: 0.3 },
   ];
