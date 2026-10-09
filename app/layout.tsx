@@ -5,23 +5,26 @@ import Footer from "@/components/Footer";
 import ChannelTalk from "@/components/ChannelTalk";
 import Analytics from "@/components/Analytics";
 import { PRODUCT_NAME_SHORT } from "@/lib/productName";
+import { BASE_PATH } from "@/lib/basePath";
 
 // [10/5] 정식 주소(retools.kr/tool/realty)로 서빙되는 배포에만 NEXT_PUBLIC_SITE_URL 을 둔다 → canonical·사이트맵이 그 주소를 가리킨다.
 // 앱(TWA)이 무는 루트 배포(calc-realty.vercel.app)에는 값이 없어 지금과 똑같다.
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
 
+// 서브패스 배포(retools.kr/tool/realty)에서는 메타데이터의 아이콘·매니페스트 주소가 basePath 를 자동으로 못 받는다 — 직접 붙인다.
+// 루트 배포(calc-realty.vercel.app, TWA)는 BASE_PATH 가 빈 문자열이라 출력이 전과 같다.
 export const metadata: Metadata = {
   ...(SITE_URL ? { metadataBase: new URL(`${SITE_URL}/`), alternates: { canonical: SITE_URL } } : {}),
   title: `${PRODUCT_NAME_SHORT} | 부동산 중개보수 계산기`,
   description:
     "매매·전세·월세 부동산 중개보수(복비)를 법정 상한요율 기준으로 바로 계산해보세요. 일반과세/간이과세 부가세까지 한번에.",
-  manifest: "/manifest.json",
+  manifest: `${BASE_PATH}/manifest.json`,
   icons: {
     icon: [
-      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: `${BASE_PATH}/icons/favicon-32.png`, sizes: "32x32", type: "image/png" },
+      { url: `${BASE_PATH}/icons/favicon-16.png`, sizes: "16x16", type: "image/png" },
     ],
-    apple: "/icons/apple-touch-icon.png",
+    apple: `${BASE_PATH}/icons/apple-touch-icon.png`,
   },
   appleWebApp: {
     capable: true,
