@@ -46,7 +46,7 @@ export const RETOOLS_INFO = {
   // 리툴스 대표번호. 두 제품이 함께 쓴다. 대표 개인 휴대폰은 대외 화면에 쓰지 않는다.
   phone: "070-5236-4803",
   phoneHours: "평일 10:00~19:00",
-  email: "retools.official@gmail.com",
+  email: "contact@retools.kr",
   // 2026-08-24 부산광역시 사상구청 신고 수리, 신고증 발급 완료.
   mailOrderRegistrationNo: "제2026-부산사상구-0385호",
   // 출원 4건 전부 심사 중이다. 등록 결정 전까지 ®를 쓰지 않고 ™만 쓴다.
