@@ -152,10 +152,11 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
           <SegButton
             value={propertyType}
             onChange={setPropertyType}
+            columns={2}
             options={[
               { value: "house", label: "주택" },
-              { value: "officetelSmall", label: "오피스텔 (85㎡ 이하)" },
-              { value: "officetelOther", label: "오피스텔 (85㎡ 초과)" },
+              { value: "officetelSmall", label: "오피스텔", subLabel: "85㎡ 이하" },
+              { value: "officetelOther", label: "오피스텔", subLabel: "85㎡ 초과" },
               { value: "other", label: "상가·토지" },
             ]}
           />

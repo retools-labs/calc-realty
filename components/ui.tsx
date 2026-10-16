@@ -62,13 +62,15 @@ export function SegButton<T extends string>({
   options,
   value,
   onChange,
+  columns,
 }: {
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; subLabel?: string }[];
   value: T;
   onChange: (v: T) => void;
+  columns?: number;
 }) {
   return (
-    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+    <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns ?? options.length}, minmax(0, 1fr))` }}>
       {options.map((opt) => (
         <button
           key={opt.value}
@@ -80,7 +82,14 @@ export function SegButton<T extends string>({
               : "bg-white text-[#4E5968] border border-[#E5E8EB]"
           }`}
         >
-          {opt.label}
+          {opt.subLabel ? (
+            <span className="flex flex-col items-center justify-center text-center leading-tight">
+              <span className="whitespace-nowrap">{opt.label}</span>
+              <span className="whitespace-nowrap text-xs font-medium">{opt.subLabel}</span>
+            </span>
+          ) : (
+            opt.label
+          )}
         </button>
       ))}
     </div>
