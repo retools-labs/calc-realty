@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
-import { detectPlayVisit, getPartnerHookUrl, isTossSurface } from "@/lib/partnerHook";
+import { detectPlayVisit, getPartnerHookUrl } from "@/lib/partnerHook";
 
 export default function PartnerHookCard() {
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isTossSurface()) return;
     setUrl(getPartnerHookUrl(detectPlayVisit()));
   }, []);
 
