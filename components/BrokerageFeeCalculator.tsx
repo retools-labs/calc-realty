@@ -17,6 +17,7 @@ import { ResultCard, ResultDivider, ResultHeadline, ResultHighlight, ResultHighl
 import HookLine from "./HookLine";
 import CarryLine from "./CarryLine";
 import { useHook } from "@/lib/hookContext";
+import PartnerHookCard from "./PartnerHookCard";
 
 type UserMode = "customer" | "agent";
 type CoBrokerage = "single" | "double"; // 단타(공동중개, 50%) / 양타(단독 또는 양쪽 대리, 100%)
@@ -266,6 +267,8 @@ export default function BrokerageFeeCalculator({ mode: userMode }: { mode: UserM
             </ResultHighlight>
           )}
         </ResultCard>
+        {/* 실무용은 정산 줄·파트너 배너가 이미 있다. 한 화면에 후킹은 하나만 — 카드는 일반고객에서만. */}
+        {userMode === "customer" && result.dealAmount > 0 && <PartnerHookCard />}
         {userMode === "agent" && (
           <p className="mt-2 text-xs leading-relaxed text-[#9AA5B1]">
             * 세전(부가세 제외) 중개보수 기준 분배액이며, 실제 정산은 사무소 내부 규정에 따라 달라질 수

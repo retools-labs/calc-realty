@@ -10,7 +10,8 @@
     "lint": "next lint",
     "check:info": "tsx scripts/check-retools-info.ts",
     "verify:calc": "tsx scripts/verify-calc.mjs",
-    "verify:calc2": "tsx scripts/verify-calc2.mjs"
+    "verify:calc2": "tsx scripts/verify-calc2.mjs",
+    "verify:hook": "tsx scripts/verify-hook.mjs"
   },
   "dependencies": {
     "@channel.io/channel-web-sdk-loader": "^2.0.2",
