@@ -75,7 +75,7 @@ export interface CalcResult {
   totalWithVat: number;
 }
 
-const VAT_RATES: Record<VatType, number> = {
+export const VAT_RATES: Record<VatType, number> = {
   general: 0.1,
   simplified: 0.04, // 업종별 부가가치율 약 40% 가정 시 실효세율 근사치 (참고용, 실제는 사업자 신고에 따라 다를 수 있음)
   exempt: 0,
