@@ -12,6 +12,7 @@ import { PRODUCT_NAME_SHORT } from "@/lib/productName";
 import { track } from "@/lib/analytics";
 import { PARTNER_URL, type Hook } from "@/lib/hook";
 import { HookProvider } from "@/lib/hookContext";
+import { HOUSE_LEASE_BRACKETS, HOUSE_SALE_BRACKETS, VAT_RATES, formatKRW } from "@/lib/calc";
 
 // PARTNER_URL 은 lib/hook.ts 에 있다. 후킹 두 줄이 같은 주소를 쓰므로 한 곳에서 정한다.
 
@@ -210,6 +211,121 @@ function PartnerBanner() {
   );
 }
 
+function RateTable({ brackets }: { brackets: typeof HOUSE_SALE_BRACKETS }) {
+  return (
+    <div className="overflow-x-auto border-y border-[#E5E8EB]">
+      <table className="w-full table-fixed text-left text-xs leading-relaxed text-[#4E5968]">
+        <thead className="bg-[#F8FAFC] text-[#333D4B]">
+          <tr>
+            <th scope="col" className="w-[48%] px-2 py-2 font-semibold">거래금액</th>
+            <th scope="col" className="w-[23%] px-2 py-2 font-semibold">상한요율</th>
+            <th scope="col" className="w-[29%] px-2 py-2 font-semibold">한도액</th>
+          </tr>
+        </thead>
+        <tbody>
+          {brackets.map((bracket) => (
+            <tr key={bracket.label} className="border-t border-[#E5E8EB]">
+              <td className="break-keep px-2 py-2">{bracket.label}</td>
+              <td className="px-2 py-2">{(bracket.rate * 100).toFixed(1)}%</td>
+              <td className="break-keep px-2 py-2">{bracket.cap === null ? "없음" : formatKRW(bracket.cap)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function RealtyGuideSection() {
+  return (
+    <section className="mx-auto mt-10 max-w-md px-4 pb-4 text-sm leading-7 text-[#4E5968]" aria-labelledby="realty-guide-title">
+      <h2 id="realty-guide-title" className="text-lg font-bold text-[#16232E]">부동산 계산기, 이렇게 사용하세요</h2>
+      <p className="mt-3">
+        먼저 복비 계산 탭에서 매매·전세·월세 중 거래 유형을 고르고, 주택·오피스텔·상가·토지 중 매물 유형을 선택하세요.
+        매매는 매매가를, 전세는 보증금을 입력하면 됩니다. 월세는 보증금과 월세를 함께 넣어 중개보수 산정용 거래금액으로 환산합니다.
+        부가세 구분까지 선택하면 상한요율 기준 보수와 부가세를 더한 금액을 바로 확인할 수 있습니다. 잔금일 일할, 취득세·부대비용,
+        상가 수익률, 평수·평단가, 전월세 전환율 탭도 같은 화면에서 필요한 항목만 입력해 이용할 수 있습니다.
+      </p>
+
+      <h3 className="mt-5 text-base font-semibold text-[#333D4B]">결과를 볼 때 확인할 점</h3>
+      <p className="mt-2">
+        복비 계산 결과에는 산정 거래금액, 상한요율 기준 보수, 부가세, 최종 지급액이 차례로 표시됩니다. 입력한 거래 유형과
+        매물 유형이 계약서의 내용과 같은지 먼저 확인하세요. 특히 월세는 보증금만으로 계산하지 않고 월세를 환산해 거래금액을
+        정하므로, 보증금·월세 중 하나라도 바뀌면 결과도 다시 확인해야 합니다. 결과 텍스트 복사 기능은 협의 전 금액을
+        정리해 두는 데 쓸 수 있지만, 계약서에 적을 보수와 부가세 포함 여부는 중개사무소와 다시 맞춰 보는 것이 안전합니다.
+      </p>
+
+      <h2 className="mt-8 text-lg font-bold text-[#16232E]">주택 중개보수 상한요율</h2>
+      <p className="mt-3">
+        아래 표는 이 계산기가 사용하는 주택 기준 상한요율입니다. 상한요율은 중개보수로 받을 수 있는 최대 비율이며,
+        실제 보수는 이 범위 안에서 개업공인중개사와 협의해 정합니다. 한도액이 있는 구간은 거래금액에 요율을 곱한 금액이
+        한도액을 넘더라도 한도액까지만 적용합니다.
+      </p>
+
+      <h3 className="mt-5 text-base font-semibold text-[#333D4B]">매매·교환</h3>
+      <div className="mt-2">
+        <RateTable brackets={HOUSE_SALE_BRACKETS} />
+      </div>
+
+      <h3 className="mt-6 text-base font-semibold text-[#333D4B]">전세·월세</h3>
+      <p className="mt-2">
+        전세는 보증금을 거래금액으로 봅니다. 월세는 「보증금 + 월세 × 100」으로 환산한 금액을 기준으로 구간을 찾고, 이 금액이 5천만원 미만이면 「보증금 + 월세 × 70」을 씁니다.
+        따라서 같은 보증금이라도 월세가 있으면 적용 구간과 상한 보수가 달라질 수 있습니다.
+      </p>
+      <div className="mt-2">
+        <RateTable brackets={HOUSE_LEASE_BRACKETS} />
+      </div>
+      <p className="mt-3">
+        표의 거래금액은 중개보수 산정 기준입니다. 전세는 보증금으로 바로 판단하지만, 월세는 환산한 금액으로 판단하므로
+        보증금이 낮아도 월세가 있으면 더 높은 구간이 적용될 수 있습니다. 반대로 계산기에서 나온 구간이 예상과 다르다면
+        거래 유형을 전세가 아닌 월세로 선택했는지, 보증금과 월세를 모두 입력했는지 확인해 보세요. 매매와 임대차는
+        같은 금액이라도 적용 표가 다르므로 계약 종류를 바꿔 비교하면 안 됩니다. 계약금이나 중도금처럼 이미 지급한 금액이
+        아니라, 계약에서 정한 전체 거래금액을 기준으로 입력하는지도 함께 확인하세요. 입력값이 정확해야 결과도 정확해집니다.
+      </p>
+
+      <h2 className="mt-8 text-lg font-bold text-[#16232E]">부가세는 어떻게 붙나요?</h2>
+      <p className="mt-3">
+        중개보수와 부가세는 구분해 보세요. 이 계산기는 일반과세를 중개보수의 {(VAT_RATES.general * 100).toFixed(0)}%로 계산해 표시합니다. 간이과세는
+        업종별 부가가치율을 반영한 세액이 달라 정해진 부가세율이 없어서, 참고용으로 중개보수의 {(VAT_RATES.simplified * 100).toFixed(0)}% 정도로
+        근사해 보여 줍니다. 면세·생략을 고르면 부가세를 더하지 않습니다. 실제 부가세 부담은 중개사무소의 과세 유형과 신고
+        방식에 따라 달라지므로, 계산 결과는 거래 전에 중개사무소에 확인하는 용도로 보는 편이 좋습니다.
+      </p>
+
+      <h2 className="mt-8 text-lg font-bold text-[#16232E]">자주 묻는 질문</h2>
+      <div className="mt-3 space-y-5">
+        <div>
+          <h3 className="font-semibold text-[#333D4B]">상한요율은 반드시 내야 하는 요율인가요?</h3>
+          <p>아닙니다. 상한요율은 받을 수 있는 최대 기준입니다. 상한을 넘을 수는 없지만, 그보다 낮은 보수는 거래 당사자와 중개사가 협의할 수 있습니다.</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-[#333D4B]">협의로 더 깎을 수 있나요?</h3>
+          <p>가능합니다. 계산기에서 보이는 상한 보수보다 낮은 금액이나 요율을 정할 수 있습니다. 다만 합의한 보수와 부가세 포함 여부는 계약 전에 분명히 확인하세요.</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-[#333D4B]">오피스텔은 왜 주택과 다른가요?</h3>
+          <p>오피스텔은 전용면적 85㎡ 이하이면서 전용 부엌·화장실·목욕시설을 갖춘 경우 등 요건에 따라 적용 요율이 달라집니다. 그래서 계산기에서도 주택과 구분해 선택하도록 했습니다. 요건 충족 여부는 계산기가 확인하지 못하니 계약 전 직접 확인하세요.</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-[#333D4B]">잔금일 일할계산이란 무엇인가요?</h3>
+          <p>월세나 관리비를 한 달 전체가 아닌 실제 거주·사용 일수만큼 나누어 정산하는 방식입니다. 잔금일과 계약 조건을 입력하면 일별 금액을 기준으로 계산합니다.</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-[#333D4B]">지자체 조례가 다르면 어떻게 하나요?</h3>
+          <p>이 계산기는 서울특별시 조례 기준 요율표를 기본으로 사용합니다. 지역에 따라 조례가 다를 수 있으므로 거래 지역의 관할 시·도 조례를 함께 확인하세요.</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-[#333D4B]">중개보수는 언제 내나요?</h3>
+          <p>보통 계약의 마무리 시점에 지급하지만, 정확한 시점과 방법은 거래 당사자와 중개사가 정한 약정에 따릅니다. 영수증과 지급 조건을 남겨 두면 나중에 확인하기 좋습니다.</p>
+        </div>
+      </div>
+
+      <p className="mt-8 text-xs leading-6 text-[#8B95A1]">
+        이 안내와 계산 결과는 법정 상한 기준을 참고하기 위한 것입니다. 실제 중개보수는 개업공인중개사와 협의하고 관할 지자체 조례를 확인해 결정하세요.
+      </p>
+    </section>
+  );
+}
+
 type CalcTab = "fee" | "prorate" | "movingCost" | "capRate" | "pyeong" | "jeonseConversion";
 type Mode = "customer" | "agent";
 
@@ -357,6 +473,8 @@ export default function Home() {
           <PartnerBanner />
         </div>
       )}
+
+      <RealtyGuideSection />
     </main>
   );
 }
