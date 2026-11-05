@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "kr.retools.realtycalc",
       "sha256_cert_fingerprints": [
-        "F5:3C:B5:D9:28:CB:01:93:08:EC:E8:D6:AD:10:FE:B9:E9:66:F1:06:21:DE:D0:04:9C:C8:E4:74:A0:B1:6B:4F"
+        "F5:3C:B5:D9:28:CB:01:93:08:EC:E8:D6:AD:10:FE:B9:E9:66:F1:06:21:DE:D0:04:9C:C8:E4:74:A0:B1:6B:4F",
+        "5B:1A:26:02:AB:3A:B9:20:B2:E1:F2:53:FF:01:0F:BE:AD:B5:BC:A2:EB:36:00:25:05:9D:13:EA:65:67:C9:CE"
       ]
     }
   }
