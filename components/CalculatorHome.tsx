@@ -294,6 +294,11 @@ function RealtyGuideSection() {
       </p>
 
       {isAeoV1Enabled() && <AeoFaq />}
+      {isAeoV1Enabled() && (
+        <p className="mt-3 text-sm">
+          <a href={`${BASE_PATH}/rates`} className="font-semibold text-[#333D4B] underline underline-offset-2">복비 상한요율표 전체 보기</a>
+        </p>
+      )}
       <h2 className="mt-8 text-lg font-bold text-[#16232E]">자주 묻는 질문</h2>
       <div className="mt-3 space-y-5">
         <div>

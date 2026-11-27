@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { RATE_TABLE_BASIS_DATE } from "@/lib/aeo/structuredData";
+import { isAeoV1Enabled } from "@/lib/aeo/flag";
 
 /**
  * [10/5] 정식 주소(retools.kr/tool/realty) 배포에서만 주소를 낸다. 포털 사이트맵 색인이 이 파일을 가리킨다.
@@ -12,5 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: site, lastModified, changeFrequency: "monthly", priority: 1 },
     { url: `${site}/privacy`, lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: `${site}/terms`, lastModified, changeFrequency: "yearly", priority: 0.3 },
+    ...(isAeoV1Enabled()
+      ? [{ url: `${site}/rates`, lastModified: RATE_TABLE_BASIS_DATE, changeFrequency: "monthly" as const, priority: 0.8 }]
+      : []),
   ];
 }
